@@ -1,0 +1,43 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Resolve frontend build/deploy failure by removing unresolved import aliases",
+  "requirements": [
+    {
+      "id": "REQ-14",
+      "summary": "Fix the root cause of the build/deploy failure so the app builds and core routes render without runtime errors.",
+      "acceptanceCriteria": [
+        "Running the standard build for the project completes successfully without errors.",
+        "Deploying the canisters succeeds on a retry after the fix (no manual code edits required between attempts).",
+        "The app loads successfully after deployment and core routes ('/', '/category/$categoryId', '/story/$storyId', '/search') render without runtime errors."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/StoryPage.tsx",
+          "operation": "modify",
+          "description": "Replace the current '@/'-based shadcn/ui imports with equivalent relative imports to ensure bundler/TypeScript resolution works in all deployment environments. Verify the component's usage instructions before implementing (shadcn-ui)."
+        },
+        {
+          "path": "frontend/src/pages/SearchPage.tsx",
+          "operation": "modify",
+          "description": "Replace the current '@/'-based shadcn/ui import with an equivalent relative import so builds do not depend on an unconfigured path alias. Verify the component's usage instructions before implementing (shadcn-ui)."
+        },
+        {
+          "path": "frontend/src/components/HeaderNav.tsx",
+          "operation": "modify",
+          "description": "Replace the current '@/'-based shadcn/ui imports with equivalent relative imports to remove reliance on a potentially missing '@' path alias during CI/deploy builds. Verify the component's usage instructions before implementing (shadcn-ui)."
+        },
+        {
+          "path": "frontend/src/components/CommentsSection.tsx",
+          "operation": "modify",
+          "description": "Replace the current '@/'-based shadcn/ui imports with equivalent relative imports to ensure deployment builds succeed without special alias configuration. Verify the component's usage instructions before implementing (shadcn-ui)."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a minimal smoke-check friendly error boundary or router configuration adjustment only if required by the build fix, and verify core routes ('/', '/category/$categoryId', '/story/$storyId', '/search') still register and render. Verify the component's usage instructions before implementing (core-infrastructure/build-template-react)."
+        }
+      ]
+    }
+  ]
+}

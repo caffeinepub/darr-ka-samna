@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.5rem;
+        
+        /* Dark horror theme - Black background with deep red accents */
+        --background: 0.08 0 0;
+        --foreground: 0.95 0 0;
+        
+        --card: 0.12 0 0;
+        --card-foreground: 0.95 0 0;
+        
+        --popover: 0.10 0 0;
+        --popover-foreground: 0.95 0 0;
+        
+        --primary: 0.45 0.18 25;
+        --primary-foreground: 0.98 0 0;
+        
+        --secondary: 0.15 0 0;
+        --secondary-foreground: 0.95 0 0;
+        
+        --muted: 0.18 0 0;
+        --muted-foreground: 0.65 0 0;
+        
+        --accent: 0.20 0 0;
+        --accent-foreground: 0.95 0 0;
+        
+        /* Deep blood red for horror theme */
+        --destructive: 0.45 0.25 25;
+        --destructive-foreground: 0.98 0 0;
+        
+        --border: 0.25 0 0;
+        --input: 0.20 0 0;
+        --ring: 0.45 0.18 25;
+        
+        --chart-1: 0.45 0.25 25;
+        --chart-2: 0.35 0.15 15;
+        --chart-3: 0.55 0.20 30;
+        --chart-4: 0.40 0.22 20;
+        --chart-5: 0.50 0.18 28;
+    }
+
+    .dark {
+        --background: 0.05 0 0;
+        --foreground: 0.98 0 0;
+        
+        --card: 0.08 0 0;
+        --card-foreground: 0.98 0 0;
+        
+        --popover: 0.08 0 0;
+        --popover-foreground: 0.98 0 0;
+        
+        --primary: 0.50 0.22 25;
+        --primary-foreground: 0.05 0 0;
+        
+        --secondary: 0.12 0 0;
+        --secondary-foreground: 0.98 0 0;
+        
+        --muted: 0.15 0 0;
+        --muted-foreground: 0.70 0 0;
+        
+        --accent: 0.18 0 0;
+        --accent-foreground: 0.98 0 0;
+        
+        --destructive: 0.50 0.28 25;
+        --destructive-foreground: 0.05 0 0;
+        
+        --border: 0.20 0 0;
+        --input: 0.18 0 0;
+        --ring: 0.50 0.22 25;
+    }
+
+    * {
+        @apply border-border;
+    }
+    
+    body {
+        @apply bg-background text-foreground;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    
+    /* Creepy horror font for headings */
+    .font-creepster {
+        font-family: 'Creepster', cursive;
+        letter-spacing: 0.05em;
+    }
+    
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    /* Custom scrollbar for horror theme */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: oklch(var(--background));
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: oklch(var(--destructive) / 0.5);
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: oklch(var(--destructive) / 0.8);
+    }
+}
+
+/* Prose styling for story content */
+.prose {
+    color: oklch(var(--foreground) / 0.9);
+}
+
+.prose p {
+    margin-bottom: 1rem;
+    line-height: 1.75;
+}
+
+.prose-invert {
+    color: rgb(229, 231, 235);
+}

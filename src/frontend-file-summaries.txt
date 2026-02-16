@@ -1,0 +1,21 @@
+{
+  "frontend/src/App.tsx": "Main application component that sets up TanStack Router with routes for home, category pages, story pages, and search, all wrapped in the SiteLayout component.",
+  "frontend/src/components/SiteLayout.tsx": "Root layout component providing the site structure with HeaderNav, main content outlet, and footer with attribution using Heart icon from lucide-react (no email subscription elements).",
+  "frontend/src/components/HeaderNav.tsx": "Responsive navigation header with site branding, category links, search toggle, and Internet Identity authentication controls for mobile and desktop using relative imports for UI components.",
+  "frontend/src/components/SearchBar.tsx": "Reusable search input component with submit and clear functionality for searching horror stories.",
+  "frontend/src/components/StoryCard.tsx": "Card component displaying story preview with title, excerpt, category badge, date, and read button linking to full story.",
+  "frontend/src/components/CommentsSection.tsx": "Comments display and submission component with authentication check, showing all comments and allowing signed-in users to post new ones using relative imports for UI components.",
+  "frontend/src/components/NightModeToggle.tsx": "Toggle button component for switching between light and night reading modes on story pages.",
+  "frontend/src/components/AdSlotPlaceholder.tsx": "Placeholder component for Google AdSense ad slots with clear labeling and dashed border styling.",
+  "frontend/src/components/AffiliateLinksPlaceholder.tsx": "Placeholder component for Amazon affiliate links section with sample book entries and horror theme styling.",
+  "frontend/src/pages/HomePage.tsx": "Homepage displaying hero section with site branding, ad slot, and grid of latest horror stories with empty state handling.",
+  "frontend/src/pages/CategoryPage.tsx": "Category-specific page showing filtered stories by category with header, description, ad slot, and empty state.",
+  "frontend/src/pages/StoryPage.tsx": "Individual story reading page with full content, night mode toggle, metadata, comments section, ad slot, and affiliate links using relative imports for UI components.",
+  "frontend/src/pages/SearchPage.tsx": "Search results page with search bar, query display, and grid of matching stories with helpful empty states using relative imports for UI components.",
+  "frontend/src/hooks/useStories.ts": "React Query hooks for fetching latest stories, stories by category, individual story, and search results from the backend.",
+  "frontend/src/hooks/useComments.ts": "React Query hooks for fetching comments and posting new comments with automatic cache invalidation.",
+  "frontend/src/hooks/useNightMode.ts": "Custom hook managing night mode state with localStorage persistence for reading preference.",
+  "frontend/src/lib/categories.ts": "Category configuration and utility functions mapping category IDs to backend StoryCategory enum values with labels and descriptions.",
+  "frontend/src/index.css": "Global styles with dark horror theme using OKLCH colors (black/deep red palette), Creepster font for headings, Inter for body text, custom scrollbar styling, and prose styles without @apply directives that use opacity modifiers.",
+  "frontend/tailwind.config.js": "Tailwind configuration extending theme with Creepster font family and maintaining OKLCH color system for horror aesthetic."
+}

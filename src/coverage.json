@@ -1,0 +1,49 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-16T01:54:07.747Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 1,
+    "implemented": 1,
+    "items": [
+      {
+        "id": "REQ-14",
+        "summary": "Identify the root cause of the current deployment/build failure and apply code/config changes required so the project builds and deploys successfully when retried.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StoryPage.tsx",
+          "frontend/src/pages/SearchPage.tsx",
+          "frontend/src/components/HeaderNav.tsx",
+          "frontend/src/components/CommentsSection.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StoryPage.tsx",
+          "frontend/src/pages/SearchPage.tsx",
+          "frontend/src/components/HeaderNav.tsx",
+          "frontend/src/components/CommentsSection.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "build-request.json",
+    "build-template/README.md",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/components/CommentsSection.tsx",
+    "frontend/src/components/HeaderNav.tsx",
+    "frontend/src/pages/SearchPage.tsx",
+    "frontend/src/pages/StoryPage.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 7,
+  "summary": "Build a dark, creepy Hindi horror storytelling website named \"Darr Ka Samna\" with a black/red cinematic theme, featuring a blog/story system with category-wise browsing, post/article reading pages (Hindi font support), homepage latest stories, search, comments, night mode reading, mobile-friendly layout, share buttons, related posts section, thumbnail image placeholders, and ad/affiliate placement areas; seed the site with the first story \"काली फाड़ी की चीखें\" (Indian Horror); email subscribe box removed.",
+  "architectural_notes": [
+    "Email subscribe box removed completely (no email subscription feature)."
+  ],
+  "known_issues": [
+    "Deployment/build failed during deployment attempt; user requested automatic retry and error fix."
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-create-the-core-site-structure-for-the-horror-storytelling-website-named-darr-ka-samna-with-a-consistent-dark-mysterious-creepy-cinematic-visual-theme-using-a-black-and-deep-red-palette-and-a-scary-creepy-headline-font-style-while-keeping-body-text-highly-readable",
+      "title": "Create the core site structure for the horror storytelling website named \"Darr Ka Samna\" with a consistent dark, mysterious, creepy, cinematic visual theme using a black and deep-red palette and a scary/creepy headline font style while keeping body text highly readable.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-homepage-that-lists-the-latest-horror-stories-with-story-cards-title-short-excerpt-preview-category-label-and-a-link-to-the-full-story",
+      "title": "Implement a homepage that lists the latest horror stories with story cards (title, short excerpt/preview, category label, and a link to the full story).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-category-pages-for-indian-horror-haunted-places-true-stories-psychological-horror-each-showing-stories-filtered-by-that-category",
+      "title": "Implement category pages for: Indian Horror, Haunted Places, True Stories, Psychological Horror, each showing stories filtered by that category.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-an-individual-story-reading-page-that-displays-the-full-story-content-with-a-comfortable-reading-layout-and-supports-a-night-mode-reading-toggle-for-the-reading-experience",
+      "title": "Implement an individual story reading page that displays the full story content with a comfortable reading layout and supports a \"Night mode\" reading toggle for the reading experience.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-site-wide-story-search-bar-that-allows-users-to-search-stories-by-title-and-optionally-excerpt-content-and-shows-matching-results",
+      "title": "Add a site-wide story search bar that allows users to search stories by title (and optionally excerpt/content) and shows matching results.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-comment-section-on-individual-story-pages-that-allows-authenticated-users-internet-identity-to-post-comments-and-all-users-to-read-comments",
+      "title": "Add a comment section on individual story pages that allows authenticated users (Internet Identity) to post comments and all users to read comments.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-provide-dedicated-ui-placeholders-slots-for-google-adsense-ads-and-dedicated-sections-for-amazon-affiliate-links-without-integrating-any-external-ad-affiliate-apis",
+      "title": "Provide dedicated UI placeholders/slots for Google AdSense ads and dedicated sections for Amazon affiliate links, without integrating any external ad/affiliate APIs.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-email-subscribe-box-completely-from-the-product-do-not-display-a-subscribe-ui-do-not-store-emails-and-do-not-expose-any-subscription-related-actions-endpoints",
+      "title": "Remove the email subscribe box completely from the product: do not display a subscribe UI, do not store emails, and do not expose any subscription-related actions/endpoints.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-robust-hindi-devanagari-font-support-across-the-site-ensuring-hindi-story-titles-content-render-correctly-while-keeping-the-existing-horror-heading-font-for-english-headings",
+      "title": "Add robust Hindi (Devanagari) font support across the site, ensuring Hindi story titles/content render correctly while keeping the existing horror heading font for English headings.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-story-thumbnail-image-placeholder-to-story-listing-cards-and-the-full-story-reading-page-using-a-generated-static-placeholder-image-asset",
+      "title": "Add a story thumbnail image placeholder to story listing cards and the full story reading page, using a generated static placeholder image asset.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-share-buttons-on-the-story-reading-page-that-allow-users-to-share-the-current-story-url-via-common-share-targets-without-any-external-api-integrations",
+      "title": "Add share buttons on the story reading page that allow users to share the current story URL via common share targets, without any external API integrations.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-related-posts-section-on-the-story-reading-page-that-shows-other-stories-from-the-same-category-excluding-the-currently-viewed-story",
+      "title": "Add a related posts section on the story reading page that shows other stories from the same category, excluding the currently viewed story.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-identify-the-root-cause-of-the-current-deployment-build-failure-and-apply-code-config-changes-required-so-the-project-builds-and-deploys-successfully-when-retried",
+      "title": "Identify the root cause of the current deployment/build failure and apply code/config changes required so the project builds and deploys successfully when retried.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create dark black/red horror theme with creepy/scary font styling and cinematic UI for \"Darr Ka Samna\" targeting Hindi horror readers",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Homepage showing latest horror stories",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Category pages for Indian Horror, Haunted Places, True Stories, Psychological Horror",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Individual story reading page",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Site-wide search bar for stories",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Comment section on story pages",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Night mode reading feature",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Mobile-friendly responsive layout",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Dedicated spaces/slots for Google AdSense ads",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Dedicated spaces/sections to add Amazon affiliate links",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Create a blog/story system with post/article page layout for stories",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Add Hindi font support/typography for story reading and UI",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Add share buttons on story reading pages",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Add related posts section on story reading pages",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Add thumbnail image placeholder support for story posts",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Seed content: add first story titled \"काली फाड़ी की चीखें\" in category \"Indian Horror\"",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Seed the application with the first story titled \"काली फाड़ी की चीखें\" in the \"Indian Horror\" category so it appears in latest stories and category listings.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Darr Ka Samna",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

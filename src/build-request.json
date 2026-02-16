@@ -1,0 +1,48 @@
+{
+  "kind": "build_request",
+  "title": "Fix deployment failure and enable successful redeploy",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-14",
+      "text": "Identify the root cause of the current deployment/build failure and apply code/config changes required so the project builds and deploys successfully when retried.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-3"
+        ],
+        "quotes": [
+          "Retry deployment and fix the error automatically"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Running the standard build for the project completes successfully without errors.",
+        "Deploying the canisters succeeds on a retry after the fix (no manual code edits required between attempts).",
+        "The app loads successfully after deployment and core routes ('/', '/category/$categoryId', '/story/$storyId', '/search') render without runtime errors."
+      ]
+    }
+  ],
+  "constraints": [
+    "Keep all Motoko backend logic within the single actor in backend/main.mo (do not introduce additional backend services/canisters).",
+    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "Use English for any user-facing text."
+  ],
+  "nonGoals": [
+    "Do not add new product features unrelated to fixing the deployment/build failure.",
+    "Do not change the site’s existing visual theme or layout unless required to fix the build/deploy error."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

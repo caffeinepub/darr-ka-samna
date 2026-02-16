@@ -1,0 +1,26 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-identify-the-root-cause-of-the-current-deployment-build-failure-and-apply-code-config-changes-required-so-the-project-builds-and-deploys-successfully-when-retried",
+      "featureTitle": "Identify the root cause of the current deployment/build failure and apply code/config changes required so the project builds and deploys successfully when retried.",
+      "files": [
+        "frontend/src/components/CommentsSection.tsx",
+        "frontend/src/components/HeaderNav.tsx",
+        "frontend/src/pages/SearchPage.tsx",
+        "frontend/src/pages/StoryPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-14"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
