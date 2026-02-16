@@ -1,41 +1,64 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Resolve frontend build/deploy failure by removing unresolved import aliases",
+  "title": "Admin story creation page (Internet Identity) with React Query create + refresh",
   "requirements": [
     {
-      "id": "REQ-14",
-      "summary": "Fix the root cause of the build/deploy failure so the app builds and core routes render without runtime errors.",
+      "id": "REQ-18",
+      "summary": "Add an authenticated admin page with a responsive create-horror-story form (title, category, full text) supporting Hindi text input.",
       "acceptanceCriteria": [
-        "Running the standard build for the project completes successfully without errors.",
-        "Deploying the canisters succeeds on a retry after the fix (no manual code edits required between attempts).",
-        "The app loads successfully after deployment and core routes ('/', '/category/$categoryId', '/story/$storyId', '/search') render without runtime errors."
+        "When not authenticated, the admin story page shows an auth-required state with a Sign In action (similar UX to AdminLogoPage).",
+        "When authenticated, the page shows a create-story form with inputs for Title, Category (selecting from the existing categories list), and Full story text.",
+        "The form accepts and preserves Hindi/Devanagari text in Title and Full story text inputs without rendering issues.",
+        "The page is responsive and usable on mobile screens (no horizontal overflow; inputs/buttons fit within viewport)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/StoryPage.tsx",
+          "path": "frontend/src/pages/AdminStoryNewPage.tsx",
+          "operation": "create",
+          "description": "Create the new admin story creation page UI. Mirror the unauthenticated auth-required Card UX from AdminLogoPage (Sign In action via useInternetIdentity). When authenticated, render a responsive form using shadcn-ui components (e.g., Card, Button, Input, Textarea, Select) and populate the Category select from the existing categories list in frontend/src/lib/categories.ts. Ensure the form controls use full-width, mobile-friendly layout and do not constrain/transform Hindi text. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-19",
+      "summary": "Add a React Query mutation to create stories via backend addStory and refresh latest/category/search story queries after success, surfacing errors on the admin page.",
+      "acceptanceCriteria": [
+        "Submitting the form calls the backend to create a story.",
+        "After successful creation, the app refreshes the latest stories list so the new story can appear without a hard reload.",
+        "Error states (including unauthorized/admin-only errors) are surfaced to the user in a readable message on the admin story page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useStories.ts",
           "operation": "modify",
-          "description": "Replace the current '@/'-based shadcn/ui imports with equivalent relative imports to ensure bundler/TypeScript resolution works in all deployment environments. Verify the component's usage instructions before implementing (shadcn-ui)."
+          "description": "Add a story-creation data-layer hook (React Query mutation) that calls the backend capability addStory via useActor(). The hook should accept title/content/category, derive an excerpt client-side (e.g., first N characters from content, preserving Unicode/Hindi text), and on success invalidate/refetch relevant queries (query keys for latest, category, and search) so HomePage/CategoryPage/SearchPage refresh without a hard reload."
         },
         {
-          "path": "frontend/src/pages/SearchPage.tsx",
+          "path": "frontend/src/pages/AdminStoryNewPage.tsx",
           "operation": "modify",
-          "description": "Replace the current '@/'-based shadcn/ui import with an equivalent relative import so builds do not depend on an unconfigured path alias. Verify the component's usage instructions before implementing (shadcn-ui)."
+          "description": "Wire the create-story form submission to the new useStories create mutation, show pending/disabled UI while submitting, and display success and readable error messages (including unauthorized/admin-only failures) using shadcn-ui Alert components. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-20",
+      "summary": "Register a new /admin route for story creation and add a header navigation link visible only to authenticated users (desktop and mobile).",
+      "acceptanceCriteria": [
+        "A new route exists for the admin story creation page and can be visited directly by URL.",
+        "When authenticated, the site header navigation shows a link to the admin story creation page (desktop and mobile menus).",
+        "When not authenticated, the admin story creation page is still routable but shows the auth-required state instead of the form."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a new TanStack Router route under /admin (e.g., /admin/story/new) that renders AdminStoryNewPage, and include it in the route tree so it is directly navigable by URL."
         },
         {
           "path": "frontend/src/components/HeaderNav.tsx",
           "operation": "modify",
-          "description": "Replace the current '@/'-based shadcn/ui imports with equivalent relative imports to remove reliance on a potentially missing '@' path alias during CI/deploy builds. Verify the component's usage instructions before implementing (shadcn-ui)."
-        },
-        {
-          "path": "frontend/src/components/CommentsSection.tsx",
-          "operation": "modify",
-          "description": "Replace the current '@/'-based shadcn/ui imports with equivalent relative imports to ensure deployment builds succeed without special alias configuration. Verify the component's usage instructions before implementing (shadcn-ui)."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add a minimal smoke-check friendly error boundary or router configuration adjustment only if required by the build fix, and verify core routes ('/', '/category/$categoryId', '/story/$storyId', '/search') still register and render. Verify the component's usage instructions before implementing (core-infrastructure/build-template-react)."
+          "description": "Add a visible navigation entry for authenticated users to reach the new admin story creation route, alongside the existing admin logo link, in both desktop nav and the mobile Sheet menu. Use existing shadcn-ui navigation building blocks already in this file. Verify the component's usage instructions before implementing."
         }
       ]
     }

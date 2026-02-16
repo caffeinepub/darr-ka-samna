@@ -16,6 +16,7 @@ export interface Comment {
   'storyId' : bigint,
   'timestamp' : Time,
 }
+export interface Logo { 'contentType' : string, 'data' : Uint8Array }
 export interface Story {
   'id' : bigint,
   'title' : string,
@@ -29,15 +30,29 @@ export type StoryCategory = { 'trueStories' : null } |
   { 'hauntedPlaces' : null } |
   { 'psychologicalHorror' : null };
 export type Time = bigint;
+export interface UserProfile { 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addComment' : ActorMethod<[bigint, string, string], undefined>,
   'addStory' : ActorMethod<[string, string, string, StoryCategory], bigint>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'deleteLogo' : ActorMethod<[], undefined>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getComments' : ActorMethod<[bigint], Array<Comment>>,
   'getLatestStories' : ActorMethod<[bigint], Array<Story>>,
+  'getLogo' : ActorMethod<[], [] | [Logo]>,
   'getStoriesByCategory' : ActorMethod<[StoryCategory], Array<Story>>,
   'getStory' : ActorMethod<[bigint], Story>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'searchStories' : ActorMethod<[string], Array<Story>>,
   'toggleNightMode' : ActorMethod<[string, boolean], boolean>,
+  'uploadLogo' : ActorMethod<[Uint8Array, string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

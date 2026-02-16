@@ -7,6 +7,10 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface Logo {
+    contentType: string;
+    data: Uint8Array;
+}
 export type Time = bigint;
 export interface Comment {
     content: string;
@@ -22,19 +26,36 @@ export interface Story {
     excerpt: string;
     category: StoryCategory;
 }
+export interface UserProfile {
+    name: string;
+}
 export enum StoryCategory {
     trueStories = "trueStories",
     indianHorror = "indianHorror",
     hauntedPlaces = "hauntedPlaces",
     psychologicalHorror = "psychologicalHorror"
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
     addComment(storyId: bigint, userId: string, content: string): Promise<void>;
     addStory(title: string, excerpt: string, content: string, category: StoryCategory): Promise<bigint>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteLogo(): Promise<void>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
     getComments(storyId: bigint): Promise<Array<Comment>>;
     getLatestStories(limit: bigint): Promise<Array<Story>>;
+    getLogo(): Promise<Logo | null>;
     getStoriesByCategory(category: StoryCategory): Promise<Array<Story>>;
     getStory(id: bigint): Promise<Story>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchStories(queryText: string): Promise<Array<Story>>;
     toggleNightMode(_userId: string, nightModeEnabled: boolean): Promise<boolean>;
+    uploadLogo(logoData: Uint8Array, contentType: string): Promise<void>;
 }

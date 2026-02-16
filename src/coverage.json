@@ -1,46 +1,63 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T01:54:07.747Z",
+  "generatedAt": "2026-02-16T03:56:56.986Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-14",
-        "summary": "Identify the root cause of the current deployment/build failure and apply code/config changes required so the project builds and deploys successfully when retried.",
+        "id": "REQ-18",
+        "summary": "Create a new admin page that requires the user to be signed in with Internet Identity and provides a form to create a new horror story with fields: Title, Category, and Full story text.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/StoryPage.tsx",
-          "frontend/src/pages/SearchPage.tsx",
-          "frontend/src/components/HeaderNav.tsx",
-          "frontend/src/components/CommentsSection.tsx",
-          "frontend/src/App.tsx"
+          "frontend/src/pages/AdminStoryNewPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/StoryPage.tsx",
-          "frontend/src/pages/SearchPage.tsx",
-          "frontend/src/components/HeaderNav.tsx",
-          "frontend/src/components/CommentsSection.tsx"
+          "frontend/src/pages/AdminStoryNewPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-19",
+        "summary": "Add frontend data layer support to create stories by calling the backend addStory method, and invalidate/refetch relevant story queries (latest, category, and search) after a successful create.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useStories.ts",
+          "frontend/src/pages/AdminStoryNewPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useStories.ts",
+          "frontend/src/pages/AdminStoryNewPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-20",
+        "summary": "Add routing and navigation access for the new admin story page, including a route under /admin (e.g., /admin/stories or /admin/story/new) and a visible navigation entry for authenticated users alongside the existing admin logo link.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/components/HeaderNav.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/components/HeaderNav.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
-    "build-template/README.md",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/CommentsSection.tsx",
+    "frontend/src/App.tsx",
     "frontend/src/components/HeaderNav.tsx",
-    "frontend/src/pages/SearchPage.tsx",
-    "frontend/src/pages/StoryPage.tsx",
+    "frontend/src/hooks/useStories.ts",
+    "frontend/src/pages/AdminStoryNewPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 7,
+  "projectStateVersion": 11,
   "summary": "Build a dark, creepy Hindi horror storytelling website named \"Darr Ka Samna\" with a black/red cinematic theme, featuring a blog/story system with category-wise browsing, post/article reading pages (Hindi font support), homepage latest stories, search, comments, night mode reading, mobile-friendly layout, share buttons, related posts section, thumbnail image placeholders, and ad/affiliate placement areas; seed the site with the first story \"काली फाड़ी की चीखें\" (Indian Horror); email subscribe box removed.",
   "architectural_notes": [
     "Email subscribe box removed completely (no email subscription feature)."
@@ -8,7 +8,7 @@
   "known_issues": [
     "Deployment/build failed during deployment attempt; user requested automatic retry and error fix."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-create-the-core-site-structure-for-the-horror-storytelling-website-named-darr-ka-samna-with-a-consistent-dark-mysterious-creepy-cinematic-visual-theme-using-a-black-and-deep-red-palette-and-a-scary-creepy-headline-font-style-while-keeping-body-text-highly-readable",
@@ -111,6 +111,46 @@
       "title": "Identify the root cause of the current deployment/build failure and apply code/config changes required so the project builds and deploys successfully when retried.",
       "reqIds": [
         "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-an-admin-page-in-the-frontend-that-requires-the-user-to-be-signed-in-with-internet-identity-and-allows-uploading-previewing-replacing-and-removing-the-site-logo",
+      "title": "Create an admin page in the frontend that requires the user to be signed in with Internet Identity and allows uploading, previewing, replacing, and removing the site logo.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-site-header-branding-to-display-the-uploaded-site-logo-when-available-with-a-graceful-fallback-to-the-current-icon-darr-ka-samna-text-when-no-logo-is-set",
+      "title": "Update the site header branding to display the uploaded site logo when available, with a graceful fallback to the current icon + \"Darr Ka Samna\" text when no logo is set.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-new-admin-page-that-requires-the-user-to-be-signed-in-with-internet-identity-and-provides-a-form-to-create-a-new-horror-story-with-fields-title-category-and-full-story-text",
+      "title": "Create a new admin page that requires the user to be signed in with Internet Identity and provides a form to create a new horror story with fields: Title, Category, and Full story text.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-frontend-data-layer-support-to-create-stories-by-calling-the-backend-addstory-method-and-invalidate-refetch-relevant-story-queries-latest-category-and-search-after-a-successful-create",
+      "title": "Add frontend data layer support to create stories by calling the backend addStory method, and invalidate/refetch relevant story queries (latest, category, and search) after a successful create.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-routing-and-navigation-access-for-the-new-admin-story-page-including-a-route-under-admin-e-g-admin-stories-or-admin-story-new-and-a-visible-navigation-entry-for-authenticated-users-alongside-the-existing-admin-logo-link",
+      "title": "Add routing and navigation access for the new admin story page, including a route under /admin (e.g., /admin/stories or /admin/story/new) and a visible navigation entry for authenticated users alongside the existing admin logo link.",
+      "reqIds": [
+        "REQ-20"
       ],
       "version": 1
     }
@@ -218,6 +258,32 @@
       "reqIds": [
         "REQ-13"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-22",
+      "summary": "Add an admin dashboard with login to create, edit, delete stories; support image/video upload, tags, categories, and publish button",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Add option in admin panel to upload/update site logo",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Add backend support for storing and retrieving a site logo uploaded from the admin panel, including content type metadata.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Admin panel content system to add horror stories (Add Story) with fields: Title, Category, Full story text; publish so homepage shows latest stories in newest-first order",
+      "reqIds": [],
       "status": "pending"
     }
   ],

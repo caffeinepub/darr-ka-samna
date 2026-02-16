@@ -1,35 +1,73 @@
 {
   "kind": "build_request",
-  "title": "Fix deployment failure and enable successful redeploy",
-  "priority": "high",
+  "title": "Add admin panel page for creating horror stories (title, category, full text)",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-14",
-      "text": "Identify the root cause of the current deployment/build failure and apply code/config changes required so the project builds and deploys successfully when retried.",
-      "target": "both",
+      "id": "REQ-18",
+      "text": "Create a new admin page that requires the user to be signed in with Internet Identity and provides a form to create a new horror story with fields: Title, Category, and Full story text.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-1"
         ],
         "quotes": [
-          "Retry deployment and fix the error automatically"
+          "Create admin panel to add horror stories.\nEach story should have:\nTitle\nCategory\nFull story text\n\nShow stories on homepage in latest order.\nHindi language supported."
         ]
       },
       "acceptanceCriteria": [
-        "Running the standard build for the project completes successfully without errors.",
-        "Deploying the canisters succeeds on a retry after the fix (no manual code edits required between attempts).",
-        "The app loads successfully after deployment and core routes ('/', '/category/$categoryId', '/story/$storyId', '/search') render without runtime errors."
+        "When not authenticated, the admin story page shows an auth-required state with a Sign In action (similar UX to AdminLogoPage).",
+        "When authenticated, the page shows a create-story form with inputs for Title, Category (selecting from the existing categories list), and Full story text.",
+        "The form accepts and preserves Hindi/Devanagari text in Title and Full story text inputs without rendering issues.",
+        "The page is responsive and usable on mobile screens (no horizontal overflow; inputs/buttons fit within viewport)."
+      ]
+    },
+    {
+      "id": "REQ-19",
+      "text": "Add frontend data layer support to create stories by calling the backend addStory method, and invalidate/refetch relevant story queries (latest, category, and search) after a successful create.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Create admin panel to add horror stories."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Submitting the form calls the backend to create a story.",
+        "After successful creation, the app refreshes the latest stories list so the new story can appear without a hard reload.",
+        "Error states (including unauthorized/admin-only errors) are surfaced to the user in a readable message on the admin story page."
+      ]
+    },
+    {
+      "id": "REQ-20",
+      "text": "Add routing and navigation access for the new admin story page, including a route under /admin (e.g., /admin/stories or /admin/story/new) and a visible navigation entry for authenticated users alongside the existing admin logo link.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Create admin panel to add horror stories."
+        ]
+      },
+      "acceptanceCriteria": [
+        "A new route exists for the admin story creation page and can be visited directly by URL.",
+        "When authenticated, the site header navigation shows a link to the admin story creation page (desktop and mobile menus).",
+        "When not authenticated, the admin story creation page is still routable but shows the auth-required state instead of the form."
       ]
     }
   ],
   "constraints": [
-    "Keep all Motoko backend logic within the single actor in backend/main.mo (do not introduce additional backend services/canisters).",
-    "Do not edit frontend immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "Use English for any user-facing text."
+    "Do not edit any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui (compose these components instead).",
+    "Respect the existing backend single-actor architecture; do not introduce additional backend services."
   ],
   "nonGoals": [
-    "Do not add new product features unrelated to fixing the deployment/build failure.",
-    "Do not change the site’s existing visual theme or layout unless required to fix the build/deploy error."
+    "Implementing thumbnail image upload for stories.",
+    "Implementing optional video (YouTube link or video upload) for stories.",
+    "Implementing edit/delete story functionality in the admin UI.",
+    "Changing the existing homepage story ordering logic beyond ensuring it continues to show newest-first from getLatestStories."
   ],
   "imageRequirements": {
     "required": [],

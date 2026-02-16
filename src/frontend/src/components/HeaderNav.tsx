@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from './ui/sheet';
-import { Menu, Search, LogIn, LogOut, Ghost } from 'lucide-react';
+import { Menu, Search, LogIn, LogOut, Ghost, Settings, BookPlus } from 'lucide-react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { useGetLogo, createLogoUrl } from '../hooks/useLogo';
 import { SearchBar } from './SearchBar';
 import { categories } from '../lib/categories';
 
@@ -11,7 +12,19 @@ export function HeaderNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const { identity, login, clear, isLoggingIn } = useInternetIdentity();
+  const { data: logo } = useGetLogo();
   const navigate = useNavigate();
+
+  const logoUrl = createLogoUrl(logo || null);
+
+  // Clean up logo URL on unmount
+  useEffect(() => {
+    return () => {
+      if (logoUrl) {
+        URL.revokeObjectURL(logoUrl);
+      }
+    };
+  }, [logoUrl]);
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
@@ -26,10 +39,20 @@ export function HeaderNav() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <Ghost className="h-8 w-8 text-destructive group-hover:animate-pulse" />
-            <span className="text-2xl font-creepster text-destructive tracking-wider">
-              Darr Ka Samna
-            </span>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt="Site logo"
+                className="h-8 max-w-[200px] object-contain"
+              />
+            ) : (
+              <>
+                <Ghost className="h-8 w-8 text-destructive group-hover:animate-pulse" />
+                <span className="text-2xl font-creepster text-destructive tracking-wider">
+                  Darr Ka Samna
+                </span>
+              </>
+            )}
           </Link>
 
           {/* Desktop Navigation */}
@@ -50,6 +73,24 @@ export function HeaderNav() {
                 {cat.label}
               </Link>
             ))}
+            {identity && (
+              <>
+                <Link
+                  to="/admin/story/new"
+                  className="text-sm font-medium text-foreground/80 hover:text-destructive transition-colors flex items-center gap-1"
+                >
+                  <BookPlus className="h-4 w-4" />
+                  Add Story
+                </Link>
+                <Link
+                  to="/admin/logo"
+                  className="text-sm font-medium text-foreground/80 hover:text-destructive transition-colors flex items-center gap-1"
+                >
+                  <Settings className="h-4 w-4" />
+                  Logo
+                </Link>
+              </>
+            )}
           </nav>
 
           {/* Actions */}
@@ -116,6 +157,26 @@ export function HeaderNav() {
                       {cat.label}
                     </Link>
                   ))}
+                  {identity && (
+                    <>
+                      <Link
+                        to="/admin/story/new"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-lg font-medium text-foreground/80 hover:text-destructive transition-colors flex items-center gap-2"
+                      >
+                        <BookPlus className="h-4 w-4" />
+                        Add Story
+                      </Link>
+                      <Link
+                        to="/admin/logo"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="text-lg font-medium text-foreground/80 hover:text-destructive transition-colors flex items-center gap-2"
+                      >
+                        <Settings className="h-4 w-4" />
+                        Logo Settings
+                      </Link>
+                    </>
+                  )}
                   <div className="border-t border-border/50 pt-4 mt-4">
                     {identity ? (
                       <Button

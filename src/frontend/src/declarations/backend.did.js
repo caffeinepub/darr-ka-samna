@@ -14,6 +14,12 @@ export const StoryCategory = IDL.Variant({
   'hauntedPlaces' : IDL.Null,
   'psychologicalHorror' : IDL.Null,
 });
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
+export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const Time = IDL.Int;
 export const Comment = IDL.Record({
   'content' : IDL.Text,
@@ -29,24 +35,42 @@ export const Story = IDL.Record({
   'excerpt' : IDL.Text,
   'category' : StoryCategory,
 });
+export const Logo = IDL.Record({
+  'contentType' : IDL.Text,
+  'data' : IDL.Vec(IDL.Nat8),
+});
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addComment' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),
   'addStory' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, StoryCategory],
       [IDL.Nat],
       [],
     ),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'deleteLogo' : IDL.Func([], [], []),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
   'getLatestStories' : IDL.Func([IDL.Nat], [IDL.Vec(Story)], ['query']),
+  'getLogo' : IDL.Func([], [IDL.Opt(Logo)], ['query']),
   'getStoriesByCategory' : IDL.Func(
       [StoryCategory],
       [IDL.Vec(Story)],
       ['query'],
     ),
   'getStory' : IDL.Func([IDL.Nat], [Story], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'searchStories' : IDL.Func([IDL.Text], [IDL.Vec(Story)], ['query']),
   'toggleNightMode' : IDL.Func([IDL.Text, IDL.Bool], [IDL.Bool], []),
+  'uploadLogo' : IDL.Func([IDL.Vec(IDL.Nat8), IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
@@ -58,6 +82,12 @@ export const idlFactory = ({ IDL }) => {
     'hauntedPlaces' : IDL.Null,
     'psychologicalHorror' : IDL.Null,
   });
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
+  const UserProfile = IDL.Record({ 'name' : IDL.Text });
   const Time = IDL.Int;
   const Comment = IDL.Record({
     'content' : IDL.Text,
@@ -73,24 +103,42 @@ export const idlFactory = ({ IDL }) => {
     'excerpt' : IDL.Text,
     'category' : StoryCategory,
   });
+  const Logo = IDL.Record({
+    'contentType' : IDL.Text,
+    'data' : IDL.Vec(IDL.Nat8),
+  });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addComment' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),
     'addStory' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, StoryCategory],
         [IDL.Nat],
         [],
       ),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'deleteLogo' : IDL.Func([], [], []),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
     'getLatestStories' : IDL.Func([IDL.Nat], [IDL.Vec(Story)], ['query']),
+    'getLogo' : IDL.Func([], [IDL.Opt(Logo)], ['query']),
     'getStoriesByCategory' : IDL.Func(
         [StoryCategory],
         [IDL.Vec(Story)],
         ['query'],
       ),
     'getStory' : IDL.Func([IDL.Nat], [Story], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'searchStories' : IDL.Func([IDL.Text], [IDL.Vec(Story)], ['query']),
     'toggleNightMode' : IDL.Func([IDL.Text, IDL.Bool], [IDL.Bool], []),
+    'uploadLogo' : IDL.Func([IDL.Vec(IDL.Nat8), IDL.Text], [], []),
   });
 };
 

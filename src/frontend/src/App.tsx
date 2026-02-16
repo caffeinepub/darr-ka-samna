@@ -4,6 +4,8 @@ import { HomePage } from './pages/HomePage';
 import { CategoryPage } from './pages/CategoryPage';
 import { StoryPage } from './pages/StoryPage';
 import { SearchPage } from './pages/SearchPage';
+import { AdminLogoPage } from './pages/AdminLogoPage';
+import { AdminStoryNewPage } from './pages/AdminStoryNewPage';
 
 const rootRoute = createRootRoute({
   component: SiteLayout,
@@ -33,7 +35,26 @@ const searchRoute = createRoute({
   component: SearchPage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, categoryRoute, storyRoute, searchRoute]);
+const adminLogoRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/logo',
+  component: AdminLogoPage,
+});
+
+const adminStoryNewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin/story/new',
+  component: AdminStoryNewPage,
+});
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  categoryRoute,
+  storyRoute,
+  searchRoute,
+  adminLogoRoute,
+  adminStoryNewRoute,
+]);
 
 const router = createRouter({ routeTree });
 
