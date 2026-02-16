@@ -33,9 +33,8 @@ export const UserRole = IDL.Variant({
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const Time = IDL.Int;
 export const Comment = IDL.Record({
-  'content' : IDL.Text,
-  'userId' : IDL.Text,
-  'storyId' : IDL.Nat,
+  'name' : IDL.Text,
+  'message' : IDL.Text,
   'timestamp' : Time,
 });
 export const Logo = IDL.Record({
@@ -47,6 +46,7 @@ export const Story = IDL.Record({
   'title' : IDL.Text,
   'content' : IDL.Text,
   'thumbnail' : IDL.Opt(Logo),
+  'viewCount' : IDL.Nat,
   'timestamp' : Time,
   'excerpt' : IDL.Text,
   'category' : StoryCategory,
@@ -90,9 +90,11 @@ export const idlService = IDL.Service({
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'deleteLogo' : IDL.Func([], [], []),
   'deleteThumbnail' : IDL.Func([IDL.Nat], [], []),
+  'followWebsite' : IDL.Func([], [], []),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
+  'getFollowerCount' : IDL.Func([], [IDL.Nat], ['query']),
   'getLatestStories' : IDL.Func([IDL.Nat], [IDL.Vec(Story)], ['query']),
   'getLogo' : IDL.Func([], [IDL.Opt(Logo)], ['query']),
   'getStoriesByCategory' : IDL.Func(
@@ -107,6 +109,7 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'incrementStoryViewCount' : IDL.Func([IDL.Nat], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'searchStories' : IDL.Func([IDL.Text], [IDL.Vec(Story)], ['query']),
@@ -143,9 +146,8 @@ export const idlFactory = ({ IDL }) => {
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
   const Time = IDL.Int;
   const Comment = IDL.Record({
-    'content' : IDL.Text,
-    'userId' : IDL.Text,
-    'storyId' : IDL.Nat,
+    'name' : IDL.Text,
+    'message' : IDL.Text,
     'timestamp' : Time,
   });
   const Logo = IDL.Record({
@@ -157,6 +159,7 @@ export const idlFactory = ({ IDL }) => {
     'title' : IDL.Text,
     'content' : IDL.Text,
     'thumbnail' : IDL.Opt(Logo),
+    'viewCount' : IDL.Nat,
     'timestamp' : Time,
     'excerpt' : IDL.Text,
     'category' : StoryCategory,
@@ -200,9 +203,11 @@ export const idlFactory = ({ IDL }) => {
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'deleteLogo' : IDL.Func([], [], []),
     'deleteThumbnail' : IDL.Func([IDL.Nat], [], []),
+    'followWebsite' : IDL.Func([], [], []),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
+    'getFollowerCount' : IDL.Func([], [IDL.Nat], ['query']),
     'getLatestStories' : IDL.Func([IDL.Nat], [IDL.Vec(Story)], ['query']),
     'getLogo' : IDL.Func([], [IDL.Opt(Logo)], ['query']),
     'getStoriesByCategory' : IDL.Func(
@@ -217,6 +222,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'incrementStoryViewCount' : IDL.Func([IDL.Nat], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'searchStories' : IDL.Func([IDL.Text], [IDL.Vec(Story)], ['query']),

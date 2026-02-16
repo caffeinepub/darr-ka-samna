@@ -1,6 +1,6 @@
 import { useParams, Link } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Clock, Tag } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { ArrowLeft, Clock, Tag, Eye } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -10,6 +10,7 @@ import { CommentsSection } from '../components/CommentsSection';
 import { AdSlotPlaceholder } from '../components/AdSlotPlaceholder';
 import { AffiliateLinksPlaceholder } from '../components/AffiliateLinksPlaceholder';
 import { useStory } from '../hooks/useStories';
+import { useIncrementStoryView } from '../hooks/useStoryViews';
 import { useGetThumbnail, createThumbnailUrl } from '../hooks/useThumbnail';
 import { useNightMode } from '../hooks/useNightMode';
 import { getCategoryLabel } from '../lib/categories';
@@ -21,6 +22,16 @@ export function StoryPage() {
   const { data: thumbnail } = useGetThumbnail(BigInt(storyId));
   const { nightMode } = useNightMode();
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const incrementViewMutation = useIncrementStoryView();
+  const hasIncrementedView = useRef(false);
+
+  // Increment view count once per page load
+  useEffect(() => {
+    if (story && !hasIncrementedView.current) {
+      hasIncrementedView.current = true;
+      incrementViewMutation.mutate(story.id);
+    }
+  }, [story, incrementViewMutation]);
 
   // Create and cleanup thumbnail URL
   useEffect(() => {
@@ -62,6 +73,7 @@ export function StoryPage() {
   const placeholderImage = '/assets/generated/story-thumbnail-placeholder.dim_800x450.png';
   const displayImage = thumbnailUrl || placeholderImage;
   const youtubeEmbedUrl = story.youtubeUrl ? getYouTubeEmbedUrl(story.youtubeUrl) : null;
+  const viewCount = Number(story.viewCount);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -86,7 +98,7 @@ export function StoryPage() {
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 mb-6">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
               <Badge variant="outline" className="border-destructive/50 text-destructive">
                 <Tag className="h-3 w-3 mr-1" />
                 {categoryLabel}
@@ -95,12 +107,16 @@ export function StoryPage() {
                 <Clock className="h-4 w-4" />
                 {date.toLocaleDateString()}
               </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Eye className="h-4 w-4" />
+                <span>Total reads: {viewCount}</span>
+              </div>
               <div className="ml-auto">
                 <NightModeToggle />
               </div>
             </div>
 
-            <h1 className={`text-3xl md:text-4xl lg:text-5xl font-creepster mb-6 ${nightMode ? 'text-red-500' : 'text-destructive'} transition-colors duration-300`}>
+            <h1 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-creepster mb-6 ${nightMode ? 'text-red-500' : 'text-destructive'} transition-colors duration-300 break-words`}>
               {story.title}
             </h1>
 

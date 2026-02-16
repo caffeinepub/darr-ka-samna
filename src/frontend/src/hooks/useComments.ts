@@ -22,15 +22,15 @@ export function useAddComment() {
   return useMutation({
     mutationFn: async ({
       storyId,
-      userId,
-      content,
+      name,
+      message,
     }: {
       storyId: bigint;
-      userId: string;
-      content: string;
+      name: string;
+      message: string;
     }) => {
       if (!actor) throw new Error('Actor not initialized');
-      await actor.addComment(storyId, userId, content);
+      await actor.addComment(storyId, name, message);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({

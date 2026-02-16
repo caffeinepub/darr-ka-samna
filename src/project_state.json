@@ -1,9 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 13,
-  "summary": "Build a dark, creepy Hindi horror storytelling website named \"Darr Ka Samna\" with a black/red cinematic theme, featuring a blog/story system with category-wise browsing, post/article reading pages (Hindi font support), homepage latest stories, search, comments, night mode reading, mobile-friendly layout, share buttons, related posts section, ad/affiliate placement areas, and admin tooling for managing stories and site branding; add media support including story thumbnail image uploads and embedding YouTube video links within stories; seed the site with the first story \"काली फाड़ी की चीखें\" (Indian Horror); email subscribe box removed.",
+  "projectStateVersion": 15,
+  "summary": "Build a dark, creepy Hindi horror storytelling website named \"Darr Ka Samna\" with a black/red cinematic theme, featuring a blog/story system with category-wise browsing, post/article reading pages (Hindi font support), homepage latest stories, search, comments, night mode reading, mobile-friendly layout, share buttons, related posts section, ad/affiliate placement areas, and admin tooling for managing stories and site branding; add media support including story thumbnail image uploads and embedding YouTube video links within stories; add engagement features including automatic public publishing after story creation, per-story view counter (total reads), simpler public comments (name + message), and a follow/subscribe button for users to follow the website; seed the site with the first story \"काली फाड़ी की चीखें\" (Indian Horror); email subscribe box removed (previously).",
   "architectural_notes": [
-    "Email subscribe box removed completely (no email subscription feature)."
+    "Email subscribe box removed completely (no email subscription feature).",
+    "User now requests a follow/subscribe feature, which conflicts with the earlier decision to remove the email subscribe box; define follow mechanism (non-email vs email) before implementation.",
+    "Commenting requirement changed to public name+message (no Internet Identity requirement) compared to previous authenticated-comments plan."
   ],
   "known_issues": [
     "Deployment/build failed during deployment attempt; user requested automatic retry and error fix."
@@ -177,6 +179,46 @@
         "REQ-24"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-ensure-every-newly-created-story-is-immediately-publicly-visible-after-creation-no-draft-private-state-and-appears-in-the-public-latest-stories-feed-without-requiring-any-additional-publish-action",
+      "title": "Ensure every newly created story is immediately publicly visible after creation (no draft/private state) and appears in the public latest stories feed without requiring any additional publish action.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-per-story-view-counter-that-tracks-total-reads-and-display-the-total-reads-on-the-story-reading-page",
+      "title": "Add a per-story view counter that tracks total reads and display the total reads on the story reading page.",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-change-the-public-story-comments-section-to-support-simple-public-comments-with-fields-name-message-and-allow-all-visitors-including-unauthenticated-users-to-post-and-read-comments-under-every-story",
+      "title": "Change the public story comments section to support simple public comments with fields: name + message, and allow all visitors (including unauthenticated users) to post and read comments under every story.",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-follow-subscribe-button-that-lets-users-follow-the-website-persist-their-follow-status-and-display-follower-count-in-the-ui-without-collecting-emails",
+      "title": "Add a follow/subscribe button that lets users follow the website, persist their follow status, and display follower count in the UI without collecting emails.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-maintain-the-existing-dark-horror-theme-and-ensure-new-engagement-ui-elements-reads-count-public-comments-form-follow-button-are-fully-mobile-friendly-and-responsive",
+      "title": "Maintain the existing dark horror theme and ensure new engagement UI elements (reads count, public comments form, follow button) are fully mobile-friendly and responsive.",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -334,6 +376,30 @@
       "reqIds": [
         "REQ-21"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Automatically publish every story publicly immediately after creation (no draft/private state)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Add per-story view counter to track and display total reads on story pages (and/or listing cards)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Add a public comment section under every story using simple fields (name + message)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Add a follow/subscribe button so users can follow the website (engagement subscription feature)",
+      "reqIds": [],
       "status": "pending"
     }
   ],

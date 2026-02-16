@@ -95,9 +95,8 @@ export interface Logo {
 }
 export type Time = bigint;
 export interface Comment {
-    content: string;
-    userId: string;
-    storyId: bigint;
+    name: string;
+    message: string;
     timestamp: Time;
 }
 export interface _CaffeineStorageRefillInformation {
@@ -108,6 +107,7 @@ export interface Story {
     title: string;
     content: string;
     thumbnail?: Logo;
+    viewCount: bigint;
     timestamp: Time;
     excerpt: string;
     category: StoryCategory;
@@ -143,20 +143,23 @@ export interface backendInterface {
     _caffeineStorageRefillCashier(refillInformation: _CaffeineStorageRefillInformation | null): Promise<_CaffeineStorageRefillResult>;
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
-    addComment(storyId: bigint, userId: string, content: string): Promise<void>;
+    addComment(storyId: bigint, name: string, message: string): Promise<void>;
     addStory(title: string, excerpt: string, content: string, category: StoryCategory, youtubeUrl: string | null): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteLogo(): Promise<void>;
     deleteThumbnail(storyId: bigint): Promise<void>;
+    followWebsite(): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getComments(storyId: bigint): Promise<Array<Comment>>;
+    getFollowerCount(): Promise<bigint>;
     getLatestStories(limit: bigint): Promise<Array<Story>>;
     getLogo(): Promise<Logo | null>;
     getStoriesByCategory(category: StoryCategory): Promise<Array<Story>>;
     getStory(id: bigint): Promise<Story>;
     getThumbnail(storyId: bigint): Promise<Logo | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    incrementStoryViewCount(id: bigint): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchStories(queryText: string): Promise<Array<Story>>;
@@ -335,6 +338,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async followWebsite(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.followWebsite();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.followWebsite();
+            return result;
+        }
+    }
     async getCallerUserProfile(): Promise<UserProfile | null> {
         if (this.processError) {
             try {
@@ -374,6 +391,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getComments(arg0);
+            return result;
+        }
+    }
+    async getFollowerCount(): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getFollowerCount();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getFollowerCount();
             return result;
         }
     }
@@ -459,6 +490,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getUserProfile(arg0);
             return from_candid_opt_n13(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async incrementStoryViewCount(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.incrementStoryViewCount(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.incrementStoryViewCount(arg0);
+            return result;
         }
     }
     async isCallerAdmin(): Promise<boolean> {
@@ -578,6 +623,7 @@ function from_candid_record_n18(_uploadFile: (file: ExternalBlob) => Promise<Uin
     title: string;
     content: string;
     thumbnail: [] | [_Logo];
+    viewCount: bigint;
     timestamp: _Time;
     excerpt: string;
     category: _StoryCategory;
@@ -587,6 +633,7 @@ function from_candid_record_n18(_uploadFile: (file: ExternalBlob) => Promise<Uin
     title: string;
     content: string;
     thumbnail?: Logo;
+    viewCount: bigint;
     timestamp: Time;
     excerpt: string;
     category: StoryCategory;
@@ -597,6 +644,7 @@ function from_candid_record_n18(_uploadFile: (file: ExternalBlob) => Promise<Uin
         title: value.title,
         content: value.content,
         thumbnail: record_opt_to_undefined(from_candid_opt_n19(_uploadFile, _downloadFile, value.thumbnail)),
+        viewCount: value.viewCount,
         timestamp: value.timestamp,
         excerpt: value.excerpt,
         category: from_candid_StoryCategory_n20(_uploadFile, _downloadFile, value.category),

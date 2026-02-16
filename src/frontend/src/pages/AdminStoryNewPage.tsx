@@ -9,7 +9,7 @@ import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { LogIn, Loader2, BookPlus, CheckCircle, Upload, X, Image as ImageIcon, Video } from 'lucide-react';
+import { LogIn, Loader2, BookPlus, CheckCircle, X, Image as ImageIcon, Video } from 'lucide-react';
 import { categories } from '../lib/categories';
 import { isValidYouTubeUrl, getYouTubeEmbedUrl } from '../utils/youtube';
 import type { StoryCategory } from '../backend';
@@ -140,7 +140,7 @@ export function AdminStoryNewPage() {
         };
       }
 
-      await createMutation.mutateAsync({
+      const storyId = await createMutation.mutateAsync({
         title: title.trim(),
         excerpt,
         content: content.trim(),
@@ -149,7 +149,7 @@ export function AdminStoryNewPage() {
         thumbnail: thumbnailData,
       });
 
-      setSuccess('Story created successfully!');
+      setSuccess('Story created successfully! Redirecting to story...');
       
       // Reset form
       setTitle('');
@@ -158,9 +158,9 @@ export function AdminStoryNewPage() {
       setYoutubeUrl('');
       handleRemoveFile();
 
-      // Navigate to home after a short delay
+      // Navigate to the new story page
       setTimeout(() => {
-        navigate({ to: '/' });
+        navigate({ to: '/story/$storyId', params: { storyId: storyId.toString() } });
       }, 1500);
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to create story. Please try again.';

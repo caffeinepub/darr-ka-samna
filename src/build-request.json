@@ -1,109 +1,118 @@
 {
   "kind": "build_request",
-  "title": "Add story media support (thumbnail uploads + YouTube embeds) and improve admin/mobile UX",
+  "title": "Add engagement features: public stories, view counts, public name+message comments, and follow button",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-21",
-      "text": "Extend the backend story model to support media by storing an optional YouTube URL per story and supporting an optional per-story thumbnail image (binary blob + content type) that can be uploaded and retrieved by story id, with admin-only write access and public read access.",
-      "target": "backend",
+      "id": "REQ-25",
+      "text": "Ensure every newly created story is immediately publicly visible after creation (no draft/private state) and appears in the public latest stories feed without requiring any additional publish action.",
+      "target": "both",
       "source": {
         "messageIds": [
           "msg-6"
         ],
         "quotes": [
-          "Now add media support.\n\nAllow thumbnail image upload.\nAllow YouTube video link inside story."
+          "Every story should be automatically public after creation."
         ]
       },
       "acceptanceCriteria": [
-        "Backend exposes a way to persist an optional YouTube URL for a story and return it when fetching story details.",
-        "Backend exposes admin-only methods to upload/replace and delete a thumbnail image for a given story id (store image bytes + content type).",
-        "Backend exposes a public query method to fetch a story thumbnail (returns null when none exists).",
-        "Non-admin callers attempting to upload/replace/delete a story thumbnail or set YouTube media data receive an Unauthorized trap.",
-        "Existing story read/list/search functionality continues to work without requiring a thumbnail or YouTube URL."
+        "After an admin creates a story via the existing admin create-story flow, the story is visible to unauthenticated visitors on the homepage latest stories list and on its story reading page.",
+        "There is no UI or backend state that requires a separate publish action for stories (i.e., stories are public by default)."
       ]
     },
     {
-      "id": "REQ-22",
-      "text": "Update the admin create-story UI (frontend/src/pages/AdminStoryNewPage.tsx) to allow: (1) uploading an optional thumbnail image for the story, and (2) entering an optional YouTube video link to be displayed on the story page; ensure validation, clear error messages, and that media is saved alongside story creation.",
+      "id": "REQ-26",
+      "text": "Add a per-story view counter that tracks total reads and display the total reads on the story reading page.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Add view counter for each story (show total reads)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend stores a persistent view count per story and returns it with story data (or via a dedicated endpoint).",
+        "Opening a story reading page triggers exactly one view increment per page load (avoid double-counting due to React dev rendering patterns).",
+        "The story reading page displays a user-facing label in English, e.g., \"Total reads: 123\".",
+        "Existing story listing cards and homepage continue to work; no breaking changes to latest/category/search fetching."
+      ]
+    },
+    {
+      "id": "REQ-27",
+      "text": "Change the public story comments section to support simple public comments with fields: name + message, and allow all visitors (including unauthenticated users) to post and read comments under every story.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Add comment section under every story (name + message)."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Story pages show a comments section for every story.",
+        "Visitors can submit a comment by providing a display name and a message (both validated to be non-empty after trimming).",
+        "Comments are publicly readable to all visitors.",
+        "Posting a comment does not require Internet Identity authentication.",
+        "Existing authenticated-only comment logic is either preserved alongside the new public comments or replaced cleanly without breaking the story page."
+      ]
+    },
+    {
+      "id": "REQ-28",
+      "text": "Add a follow/subscribe button that lets users follow the website, persist their follow status, and display follower count in the UI without collecting emails.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Add follow/subscribe button so users can follow the website."
+        ]
+      },
+      "acceptanceCriteria": [
+        "A visible \"Follow\" / \"Following\" button is added in a prominent site-wide location (e.g., header and/or footer) with English user-facing text.",
+        "Follow state is persisted per signed-in Internet Identity principal (no email collection/storage).",
+        "Unauthenticated visitors who click follow are prompted to sign in with Internet Identity, then can follow/unfollow.",
+        "UI can show the total follower count (e.g., \"Followers: 10\") and updates after follow/unfollow.",
+        "No email subscribe box is added back anywhere in the UI."
+      ]
+    },
+    {
+      "id": "REQ-29",
+      "text": "Maintain the existing dark horror theme and ensure new engagement UI elements (reads count, public comments form, follow button) are fully mobile-friendly and responsive.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-6"
         ],
         "quotes": [
-          "Allow thumbnail image upload.\nAllow YouTube video link inside story."
+          "Mobile friendly layout.",
+          "Keep dark horror theme design same."
         ]
       },
       "acceptanceCriteria": [
-        "Admin create-story form includes an optional thumbnail file input with client-side validation (image-only MIME types and a reasonable max size consistent with existing logo upload UX).",
-        "Admin create-story form includes an optional YouTube URL input; invalid URLs show an English validation error and do not submit.",
-        "On successful creation, the story is created and (if provided) its YouTube URL is saved and its thumbnail is uploaded/associated with the newly created story id.",
-        "After success, relevant React Query story queries are invalidated/refetched (latest/category/search) so the new story and its media are visible without a hard refresh.",
-        "All new user-facing strings introduced by this change are in English."
-      ]
-    },
-    {
-      "id": "REQ-23",
-      "text": "Render story media on public pages: show the story thumbnail on story listing cards and the story reading page when available (fallback to the existing placeholder when not), and embed the YouTube video on the story reading page when a YouTube link exists using a responsive, mobile-friendly layout.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Allow thumbnail image upload.\nAllow YouTube video link inside story.\nMobile friendly layout."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Story cards (frontend/src/components/StoryCard.tsx) display a thumbnail image area; if the story has no uploaded thumbnail, the existing placeholder thumbnail is shown.",
-        "Story reading page (frontend/src/pages/StoryPage.tsx) displays the thumbnail near the story header when available, otherwise uses the existing placeholder thumbnail behavior.",
-        "If a story has a YouTube URL, StoryPage embeds it as a responsive 16:9 iframe (or equivalent) that fits on mobile without horizontal scrolling.",
-        "The YouTube embed uses an embed-safe URL derived from the provided link (e.g., watch/share forms supported) and does not execute arbitrary HTML from story content.",
-        "Thumbnail object URLs created in the browser are cleaned up to avoid memory leaks (similar to existing logo preview behavior)."
-      ]
-    },
-    {
-      "id": "REQ-24",
-      "text": "Add a clear \"Add Story\" button entry in the admin area and ensure admin-related pages and media UI are mobile-friendly (spacing, stacking, and touch targets).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Add \"Add Story\" button in admin panel.\nMobile friendly layout."
-        ]
-      },
-      "acceptanceCriteria": [
-        "Authenticated users can see a clearly labeled \"Add Story\" button/link within the admin area (not only buried in navigation), which takes them to the existing /admin/story/new route.",
-        "Admin pages (at minimum: AdminStoryNewPage and AdminLogoPage) render cleanly on small screens (no overflow, form controls full-width where appropriate, buttons accessible).",
-        "Media controls added for thumbnails/YouTube remain usable on mobile (file input, preview, and video preview/embed sizing)."
+        "New UI elements match existing styling conventions (dark background, red/destructive accents, existing typography) and do not introduce a new theme.",
+        "On small screens, the follow button, reads label, and comments form fields stack appropriately with comfortable spacing and tap targets.",
+        "No horizontal scrolling is introduced on mobile due to new components."
       ]
     }
   ],
   "constraints": [
     "Backend must remain a single Motoko actor in backend/main.mo; do not introduce additional backend services.",
-    "Do not modify any frontend files under frontend/src/components/ui or any paths listed in frontend.immutablePaths (compose instead of editing).",
-    "Do not integrate any external media storage, CDNs, or third-party APIs; store thumbnails in-canister and embed YouTube via standard iframe without API keys."
+    "Do not edit files under frontend immutablePaths (compose components instead).",
+    "Do not re-introduce any email subscription UI or email storage.",
+    "Keep the existing dark horror theme; only extend it for new elements."
   ],
   "nonGoals": [
-    "Adding support for non-YouTube video providers (e.g., Vimeo) beyond accepting and embedding YouTube links.",
-    "Implementing full story editing/deleting workflows or an expanded admin dashboard beyond adding the requested \"Add Story\" entry and media support.",
-    "Real-time updates (WebSockets) or any external database/storage integration."
+    "Integrating external newsletter/email providers or sending notifications/emails.",
+    "Adding third-party auth providers beyond Internet Identity.",
+    "Adding real-time updates (WebSockets) for views/comments/followers.",
+    "Adding social media API integrations."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

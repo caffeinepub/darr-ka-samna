@@ -1,57 +1,96 @@
 import Map "mo:core/Map";
+import Nat "mo:core/Nat";
 import Time "mo:core/Time";
-import Blob "mo:core/Blob";
+import Iter "mo:core/Iter";
 
 module {
-  public type OldStoryCategory = {
+  type StoryCategory = {
     #indianHorror;
     #hauntedPlaces;
     #trueStories;
     #psychologicalHorror;
   };
 
-  public type OldStory = {
-    id : Nat;
-    title : Text;
-    excerpt : Text;
-    content : Text;
-    category : OldStoryCategory;
-    timestamp : Time.Time;
-  };
-
-  public type NewLogo = {
+  type Logo = {
     data : Blob;
     contentType : Text;
   };
 
-  public type NewStoryCategory = {
-    #indianHorror;
-    #hauntedPlaces;
-    #trueStories;
-    #psychologicalHorror;
-  };
-
-  public type NewStory = {
+  type OldStory = {
     id : Nat;
     title : Text;
     excerpt : Text;
     content : Text;
-    category : NewStoryCategory;
+    category : StoryCategory;
     timestamp : Time.Time;
     youtubeUrl : ?Text;
-    thumbnail : ?NewLogo;
+    thumbnail : ?Logo;
   };
 
-  public func run(old : { stories : Map.Map<Nat, OldStory> }) : { stories : Map.Map<Nat, NewStory> } {
+  type OldComment = {
+    userId : Text;
+    content : Text;
+    storyId : Nat;
+    timestamp : Time.Time;
+  };
+
+  type OldActor = {
+    nextStoryId : Nat;
+    stories : Map.Map<Nat, OldStory>;
+    comments : Map.Map<Nat, [OldComment]>;
+  };
+
+  type NewStory = {
+    id : Nat;
+    title : Text;
+    excerpt : Text;
+    content : Text;
+    category : StoryCategory;
+    timestamp : Time.Time;
+    youtubeUrl : ?Text;
+    thumbnail : ?Logo;
+    viewCount : Nat;
+  };
+
+  type NewComment = {
+    name : Text;
+    message : Text;
+    timestamp : Time.Time;
+  };
+
+  type NewActor = {
+    nextStoryId : Nat;
+    stories : Map.Map<Nat, NewStory>;
+    comments : Map.Map<Nat, [NewComment]>;
+    followerCount : Nat;
+  };
+
+  public func run(old : OldActor) : NewActor {
     let newStories = old.stories.map<Nat, OldStory, NewStory>(
       func(_id, oldStory) {
-        {
-          oldStory with
-          youtubeUrl = null; // Old stories start without a YouTube URL
-          thumbnail = null; // Old stories start without a thumbnail
-        };
+        { oldStory with viewCount = 0 };
       }
     );
-    { stories = newStories };
+
+    let newComments = old.comments.map<Nat, [OldComment], [NewComment]>(
+      func(_id, oldComments) {
+        oldComments.map(
+          func(oldComment) {
+            {
+              name = oldComment.userId;
+              message = oldComment.content;
+              timestamp = oldComment.timestamp;
+            };
+          }
+        );
+      }
+    );
+
+    {
+      old with
+      stories = newStories;
+      comments = newComments;
+      followerCount = 0;
+    };
   };
 };

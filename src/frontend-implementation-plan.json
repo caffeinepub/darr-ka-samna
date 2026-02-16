@@ -1,82 +1,144 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Story media support (thumbnails + YouTube) and improved admin/mobile UX",
+  "title": "Engagement features: public stories, view counts, public comments, and follow button (frontend)",
   "requirements": [
     {
-      "id": "REQ-22",
-      "summary": "Enhance the admin story creation form to capture optional thumbnail upload and optional YouTube URL, validate inputs, and persist media during story creation with query refresh.",
+      "id": "REQ-25",
+      "summary": "Ensure newly created stories appear publicly in latest feed and are accessible without any publish action.",
       "acceptanceCriteria": [
-        "Admin create-story form includes an optional thumbnail file input with client-side validation (image-only MIME types and a reasonable max size consistent with existing logo upload UX).",
-        "Admin create-story form includes an optional YouTube URL input; invalid URLs show an English validation error and do not submit.",
-        "On successful creation, the story is created and (if provided) its YouTube URL is saved and its thumbnail is uploaded/associated with the newly created story id.",
-        "After success, relevant React Query story queries are invalidated/refetched (latest/category/search) so the new story and its media are visible without a hard refresh.",
-        "All new user-facing strings introduced by this change are in English."
+        "After an admin creates a story via the existing admin create-story flow, the story is visible to unauthenticated visitors on the homepage latest stories list and on its story reading page.",
+        "There is no UI or backend state that requires a separate publish action for stories (i.e., stories are public by default)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/youtube.ts",
-          "operation": "create",
-          "description": "Add YouTube URL parsing/validation helpers that accept common watch/share URL formats, extract a safe video id, and produce an embed-safe URL suitable for iframe usage (no arbitrary HTML)."
+          "path": "frontend/src/pages/AdminStoryNewPage.tsx",
+          "operation": "modify",
+          "description": "After successful story creation, navigate directly to the new story reading page (instead of only returning to home) to ensure immediate public visibility is obvious; keep the form free of any draft/private/publish toggles. Use existing shadcn-ui components (Button/Card/Alert/etc.) for consistent UI; verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/hooks/useStories.ts",
           "operation": "modify",
-          "description": "Update story creation mutation to accept an optional YouTube URL (null when omitted) and to upload an optional thumbnail after story creation using existing backend actor capabilities; ensure React Query invalidates/refetches relevant story queries (latest/category/search) and any thumbnail-related caches. (Uses core-infrastructure actor wiring and follows authorization component patterns for authenticated calls; Verify the component's usage instructions before implementing.)"
+          "description": "Ensure the create-story mutation invalidates/refetches the latest stories query in a way that makes the new story appear promptly in the public feed (e.g., invalidate the 'stories' group already used by HomePage). This supports immediate public visibility without extra actions."
         },
         {
-          "path": "frontend/src/pages/AdminStoryNewPage.tsx",
+          "path": "frontend/src/pages/HomePage.tsx",
           "operation": "modify",
-          "description": "Extend the create-story form UI to include: (1) optional thumbnail file input with image MIME validation and max size consistent with AdminLogoPage (2MB), including preview with object URL cleanup; (2) optional YouTube URL input with validation errors in English and an optional responsive preview; and save media during submission by passing youtubeUrl and thumbnail to the create mutation. Keep layout mobile-friendly (stack controls/buttons on small screens). (Use existing shadcn-ui form components already present in the page; Verify the component's usage instructions before implementing.)"
+          "description": "Confirm the latest stories feed remains accessible to unauthenticated visitors and renders newly-created stories once queries are invalidated/refetched; keep the existing layout and do not add any publish controls. Use existing StoryCard and styling conventions."
         }
       ]
     },
     {
-      "id": "REQ-23",
-      "summary": "Display story thumbnails on story cards and story page with placeholder fallback, and embed YouTube videos on the story page responsively and safely.",
+      "id": "REQ-26",
+      "summary": "Increment and display a persistent per-story view count on the story reading page without double-counting.",
       "acceptanceCriteria": [
-        "Story cards (frontend/src/components/StoryCard.tsx) display a thumbnail image area; if the story has no uploaded thumbnail, the existing placeholder thumbnail is shown.",
-        "Story reading page (frontend/src/pages/StoryPage.tsx) displays the thumbnail near the story header when available, otherwise uses the existing placeholder thumbnail behavior.",
-        "If a story has a YouTube URL, StoryPage embeds it as a responsive 16:9 iframe (or equivalent) that fits on mobile without horizontal scrolling.",
-        "The YouTube embed uses an embed-safe URL derived from the provided link (e.g., watch/share forms supported) and does not execute arbitrary HTML from story content.",
-        "Thumbnail object URLs created in the browser are cleaned up to avoid memory leaks (similar to existing logo preview behavior)."
+        "Backend stores a persistent view count per story and returns it with story data (or via a dedicated endpoint).",
+        "Opening a story reading page triggers exactly one view increment per page load (avoid double-counting due to React dev rendering patterns).",
+        "The story reading page displays a user-facing label in English, e.g., \"Total reads: 123\".",
+        "Existing story listing cards and homepage continue to work; no breaking changes to latest/category/search fetching."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useThumbnail.ts",
+          "path": "frontend/src/hooks/useStoryViews.ts",
           "operation": "create",
-          "description": "Create React Query hooks to fetch a story thumbnail by story id and a helper to convert returned logo/thumbnail bytes into a browser object URL for <img> display; ensure callers can revoke created object URLs to prevent leaks. (Uses core-infrastructure actor wiring; Verify the component's usage instructions before implementing.)"
-        },
-        {
-          "path": "frontend/src/components/StoryCard.tsx",
-          "operation": "modify",
-          "description": "Add a thumbnail area to the story card: fetch and render the story thumbnail (via the new thumbnail hook) and fall back to the existing placeholder image at frontend/public/assets/generated/story-thumbnail-placeholder.dim_800x450.png when none exists; ensure any object URL used for the thumbnail is revoked on change/unmount. (Use existing shadcn-ui Card/Button primitives already imported; Verify the component's usage instructions before implementing.)"
+          "description": "Add React Query hooks to increment a story's view count once per page load and to refresh the story data after increment (e.g., invalidate/refetch the story query). Include a guard (useRef/sessionStorage) to avoid double-counting in React dev render patterns."
         },
         {
           "path": "frontend/src/pages/StoryPage.tsx",
           "operation": "modify",
-          "description": "Render the story thumbnail near the header using the thumbnail hook with fallback to frontend/public/assets/generated/story-thumbnail-placeholder.dim_800x450.png and object-URL cleanup; if youtubeUrl exists, embed a responsive 16:9 iframe using an embed-safe URL from the YouTube utility (no HTML injection) and ensure it is mobile-friendly (no horizontal scrolling). (Use existing shadcn-ui Card/Separator/Badge/Button primitives already imported; Verify the component's usage instructions before implementing.)"
+          "description": "On mount for a given storyId, call the new view-increment hook exactly once per page load; display the returned story.viewCount with an English label (e.g., \"Total reads: 123\") in a responsive position near existing metadata. Use existing shadcn-ui components (Badge/Separator/Card/Button) and current horror-theme classes; verify the component's usage instructions before implementing."
         }
       ]
     },
     {
-      "id": "REQ-24",
-      "summary": "Add a prominent Add Story entry within the admin area and make admin pages (create story + logo) mobile-friendly, including the new media controls.",
+      "id": "REQ-27",
+      "summary": "Replace or extend the story comments UI to allow public name + message comments without requiring authentication.",
       "acceptanceCriteria": [
-        "Authenticated users can see a clearly labeled \"Add Story\" button/link within the admin area (not only buried in navigation), which takes them to the existing /admin/story/new route.",
-        "Admin pages (at minimum: AdminStoryNewPage and AdminLogoPage) render cleanly on small screens (no overflow, form controls full-width where appropriate, buttons accessible).",
-        "Media controls added for thumbnails/YouTube remain usable on mobile (file input, preview, and video preview/embed sizing)."
+        "Story pages show a comments section for every story.",
+        "Visitors can submit a comment by providing a display name and a message (both validated to be non-empty after trimming).",
+        "Comments are publicly readable to all visitors.",
+        "Posting a comment does not require Internet Identity authentication.",
+        "Existing authenticated-only comment logic is either preserved alongside the new public comments or replaced cleanly without breaking the story page."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/AdminLogoPage.tsx",
+          "path": "frontend/src/hooks/useComments.ts",
           "operation": "modify",
-          "description": "Add a prominent, clearly labeled \"Add Story\" button/link within the admin page content that routes to /admin/story/new; adjust spacing/layout for small screens so controls and buttons are full-width and touch-friendly without overflow. (Uses existing shadcn-ui Button/Card components already used on the page; Verify the component's usage instructions before implementing.)"
+          "description": "Update comment hooks to match the public comment backend interface (addComment(storyId, name, message) and getComments(storyId) returning {name,message,timestamp}); remove identity/userId requirements and keep query invalidation for the story's comments."
         },
         {
-          "path": "frontend/src/pages/AdminStoryNewPage.tsx",
+          "path": "frontend/src/components/CommentsSection.tsx",
           "operation": "modify",
-          "description": "Refine mobile UX for the admin create-story page: ensure form sections stack cleanly, inputs are full-width, and action buttons have adequate spacing/touch targets on small screens while keeping the new thumbnail/YouTube controls usable. (Uses existing shadcn-ui components; Verify the component's usage instructions before implementing.)"
+          "description": "Revise the comments section UI to always show a public comment form with fields: display name + message; validate both are non-empty after trimming; submit without Internet Identity. Update the list rendering to show comment.name and comment.message instead of principal-based userId. Use existing shadcn-ui inputs (Input/Textarea/Button/Card/Separator/Avatar) for consistent styling; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/StoryPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the story reading page continues to render the CommentsSection for every story and that the updated public comments UX fits within the existing layout without breaking other story content."
+        }
+      ]
+    },
+    {
+      "id": "REQ-28",
+      "summary": "Add a prominent Follow/Following button with follower count; require Internet Identity for follow/unfollow and do not collect emails.",
+      "acceptanceCriteria": [
+        "A visible \"Follow\" / \"Following\" button is added in a prominent site-wide location (e.g., header and/or footer) with English user-facing text.",
+        "Follow state is persisted per signed-in Internet Identity principal (no email collection/storage).",
+        "Unauthenticated visitors who click follow are prompted to sign in with Internet Identity, then can follow/unfollow.",
+        "UI can show the total follower count (e.g., \"Followers: 10\") and updates after follow/unfollow.",
+        "No email subscribe box is added back anywhere in the UI."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useFollowWebsite.ts",
+          "operation": "create",
+          "description": "Create React Query hooks for follower count (getFollowerCount) and for toggling follow (followWebsite) with proper loading/error handling and cache invalidation so the follower count updates after follow/unfollow. Integrate with existing Internet Identity state for authenticated actions."
+        },
+        {
+          "path": "frontend/src/components/FollowButton.tsx",
+          "operation": "create",
+          "description": "Add a reusable Follow/Following button component that: (1) shows follower count, (2) prompts Internet Identity login when unauthenticated, and (3) calls the follow toggle mutation when authenticated. Use shadcn-ui Button (and optional Badge) for consistent UI; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/HeaderNav.tsx",
+          "operation": "modify",
+          "description": "Place the new FollowButton in a prominent, site-wide header location (desktop and mobile menu as needed) while preserving existing navigation and sign-in/out actions. Use existing shadcn-ui layout patterns (Sheet/Button) and keep the horror theme; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/SiteLayout.tsx",
+          "operation": "modify",
+          "description": "Optionally add a secondary FollowButton placement in the footer for additional visibility on mobile; ensure no email subscription UI is introduced."
+        }
+      ]
+    },
+    {
+      "id": "REQ-29",
+      "summary": "Keep the dark horror theme and make new engagement UI (reads count, public comments, follow button) mobile-friendly and responsive.",
+      "acceptanceCriteria": [
+        "New UI elements match existing styling conventions (dark background, red/destructive accents, existing typography) and do not introduce a new theme.",
+        "On small screens, the follow button, reads label, and comments form fields stack appropriately with comfortable spacing and tap targets.",
+        "No horizontal scrolling is introduced on mobile due to new components."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/StoryPage.tsx",
+          "operation": "modify",
+          "description": "Adjust layout around the new \"Total reads\" label and existing metadata so it wraps/flows cleanly on small screens (flex-wrap, spacing, alignment) without introducing horizontal scroll; keep existing dark horror styling conventions."
+        },
+        {
+          "path": "frontend/src/components/CommentsSection.tsx",
+          "operation": "modify",
+          "description": "Ensure the public comments form is responsive (stacked fields on mobile, full-width inputs, comfortable spacing/tap targets) and matches the existing dark horror theme. Use shadcn-ui Input/Textarea/Button/Card; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/HeaderNav.tsx",
+          "operation": "modify",
+          "description": "Ensure the FollowButton placement works for both desktop and mobile header/menu, without crowding or overflow, and remains consistent with the existing theme. Use shadcn-ui primitives already used by the header; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "If needed, extend existing global styles minimally to support the new engagement UI (e.g., consistent spacing/typography for small meta labels) while preserving the current dark horror palette and avoiding any new theme introduction."
         }
       ]
     }

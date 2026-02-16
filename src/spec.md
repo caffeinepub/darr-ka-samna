@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Add per-story media support (optional thumbnail uploads and optional YouTube embeds) and improve admin discoverability and mobile usability.
+**Goal:** Add engagement features to stories: make all stories public by default, show read counts, enable public name+message comments, and add a site-wide follow button with follower count.
 
 **Planned changes:**
-- Extend the backend story model to store an optional YouTube URL and an optional thumbnail image (bytes + content type) per story, with admin-only write and public read by story id.
-- Update the admin create-story page to allow uploading an optional image thumbnail and entering an optional YouTube URL, including validation, clear English errors, and saving media during story creation.
-- Update public story UI to display thumbnails on story cards and the story page (fallback to the existing placeholder when none) and embed YouTube videos on the story page with a responsive, mobile-friendly layout.
-- Add a clearly visible “Add Story” entry/button in the admin area linking to `/admin/story/new`, and improve mobile layout/spacing for key admin pages (including media controls).
+- Make newly created stories immediately publicly visible and included in the public latest stories feed with no publish/draft state.
+- Add a persistent per-story view counter, incrementing once per story page load, and display “Total reads: N” on the story reading page.
+- Update the story comments section to allow public comments (display name + message) readable and postable by unauthenticated visitors, with non-empty validation.
+- Add a prominent site-wide Follow/Following button that requires Internet Identity to follow/unfollow, persists follow state per principal, and displays total follower count (no emails).
+- Ensure all new UI elements match the existing dark horror theme and are fully responsive/mobile-friendly.
 
-**User-visible outcome:** Admins can create stories with an optional thumbnail and optional YouTube link; readers see thumbnails on listings and story pages (or a placeholder) and see an embedded, mobile-friendly YouTube video when provided; the admin area has an obvious “Add Story” action and works better on small screens.
+**User-visible outcome:** Visitors can read stories immediately after they’re created, see total reads on story pages, post and view public comments without signing in, and signed-in users can follow/unfollow the site and see the follower count.

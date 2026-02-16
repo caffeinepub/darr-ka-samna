@@ -1,88 +1,109 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T04:05:25.211Z",
+  "generatedAt": "2026-02-16T04:52:57.348Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 3,
+    "total": 5,
+    "implemented": 5,
     "items": [
       {
-        "id": "REQ-21",
-        "summary": "Extend the backend story model to support media by storing an optional YouTube URL per story and supporting an optional per-story thumbnail image (binary blob + content type) that can be uploaded and retrieved by story id, with admin-only write access and public read access.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-22",
-        "summary": "Update the admin create-story UI (frontend/src/pages/AdminStoryNewPage.tsx) to allow: (1) uploading an optional thumbnail image for the story, and (2) entering an optional YouTube video link to be displayed on the story page; ensure validation, clear error messages, and that media is saved alongside story creation.",
+        "id": "REQ-25",
+        "summary": "Ensure every newly created story is immediately publicly visible after creation (no draft/private state) and appears in the public latest stories feed without requiring any additional publish action.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/youtube.ts",
+          "frontend/src/pages/AdminStoryNewPage.tsx",
           "frontend/src/hooks/useStories.ts",
-          "frontend/src/pages/AdminStoryNewPage.tsx"
+          "frontend/src/pages/HomePage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/youtube.ts",
-          "frontend/src/hooks/useStories.ts",
           "frontend/src/pages/AdminStoryNewPage.tsx"
         ]
       },
       {
-        "id": "REQ-23",
-        "summary": "Render story media on public pages: show the story thumbnail on story listing cards and the story reading page when available (fallback to the existing placeholder when not), and embed the YouTube video on the story reading page when a YouTube link exists using a responsive, mobile-friendly layout.",
+        "id": "REQ-26",
+        "summary": "Add a per-story view counter that tracks total reads and display the total reads on the story reading page.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useThumbnail.ts",
-          "frontend/src/components/StoryCard.tsx",
+          "frontend/src/hooks/useStoryViews.ts",
           "frontend/src/pages/StoryPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useThumbnail.ts",
-          "frontend/src/components/StoryCard.tsx",
+          "frontend/src/hooks/useStoryViews.ts",
           "frontend/src/pages/StoryPage.tsx"
         ]
       },
       {
-        "id": "REQ-24",
-        "summary": "Add a clear \"Add Story\" button entry in the admin area and ensure admin-related pages and media UI are mobile-friendly (spacing, stacking, and touch targets).",
+        "id": "REQ-27",
+        "summary": "Change the public story comments section to support simple public comments with fields: name + message, and allow all visitors (including unauthenticated users) to post and read comments under every story.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/AdminLogoPage.tsx",
-          "frontend/src/pages/AdminStoryNewPage.tsx"
+          "frontend/src/hooks/useComments.ts",
+          "frontend/src/components/CommentsSection.tsx",
+          "frontend/src/pages/StoryPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/AdminLogoPage.tsx",
-          "frontend/src/pages/AdminStoryNewPage.tsx"
+          "frontend/src/hooks/useComments.ts",
+          "frontend/src/components/CommentsSection.tsx",
+          "frontend/src/pages/StoryPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-28",
+        "summary": "Add a follow/subscribe button that lets users follow the website, persist their follow status, and display follower count in the UI without collecting emails.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useFollowWebsite.ts",
+          "frontend/src/components/FollowButton.tsx",
+          "frontend/src/components/HeaderNav.tsx",
+          "frontend/src/components/SiteLayout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useFollowWebsite.ts",
+          "frontend/src/components/FollowButton.tsx",
+          "frontend/src/components/HeaderNav.tsx"
+        ]
+      },
+      {
+        "id": "REQ-29",
+        "summary": "Maintain the existing dark horror theme and ensure new engagement UI elements (reads count, public comments form, follow button) are fully mobile-friendly and responsive.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/StoryPage.tsx",
+          "frontend/src/components/CommentsSection.tsx",
+          "frontend/src/components/HeaderNav.tsx",
+          "frontend/src/index.css"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/StoryPage.tsx",
+          "frontend/src/components/CommentsSection.tsx",
+          "frontend/src/components/HeaderNav.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/blob-storage/Mixin.mo",
-    "backend/blob-storage/Storage.mo",
     "backend/main.mo",
     "backend/migration.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
-    "frontend/src/components/StoryCard.tsx",
+    "frontend/src/components/CommentsSection.tsx",
+    "frontend/src/components/FollowButton.tsx",
+    "frontend/src/components/HeaderNav.tsx",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useStories.ts",
-    "frontend/src/hooks/useThumbnail.ts",
-    "frontend/src/pages/AdminLogoPage.tsx",
+    "frontend/src/hooks/useComments.ts",
+    "frontend/src/hooks/useFollowWebsite.ts",
+    "frontend/src/hooks/useStoryViews.ts",
     "frontend/src/pages/AdminStoryNewPage.tsx",
     "frontend/src/pages/StoryPage.tsx",
-    "frontend/src/utils/youtube.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -13,9 +13,8 @@ export interface Logo {
 }
 export type Time = bigint;
 export interface Comment {
-    content: string;
-    userId: string;
-    storyId: bigint;
+    name: string;
+    message: string;
     timestamp: Time;
 }
 export interface Story {
@@ -23,6 +22,7 @@ export interface Story {
     title: string;
     content: string;
     thumbnail?: Logo;
+    viewCount: bigint;
     timestamp: Time;
     excerpt: string;
     category: StoryCategory;
@@ -43,20 +43,23 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
-    addComment(storyId: bigint, userId: string, content: string): Promise<void>;
+    addComment(storyId: bigint, name: string, message: string): Promise<void>;
     addStory(title: string, excerpt: string, content: string, category: StoryCategory, youtubeUrl: string | null): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteLogo(): Promise<void>;
     deleteThumbnail(storyId: bigint): Promise<void>;
+    followWebsite(): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getComments(storyId: bigint): Promise<Array<Comment>>;
+    getFollowerCount(): Promise<bigint>;
     getLatestStories(limit: bigint): Promise<Array<Story>>;
     getLogo(): Promise<Logo | null>;
     getStoriesByCategory(category: StoryCategory): Promise<Array<Story>>;
     getStory(id: bigint): Promise<Story>;
     getThumbnail(storyId: bigint): Promise<Logo | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    incrementStoryViewCount(id: bigint): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchStories(queryText: string): Promise<Array<Story>>;

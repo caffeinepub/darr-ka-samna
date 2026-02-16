@@ -11,9 +11,8 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export interface Comment {
-  'content' : string,
-  'userId' : string,
-  'storyId' : bigint,
+  'name' : string,
+  'message' : string,
   'timestamp' : Time,
 }
 export interface Logo { 'contentType' : string, 'data' : Uint8Array }
@@ -22,6 +21,7 @@ export interface Story {
   'title' : string,
   'content' : string,
   'thumbnail' : [] | [Logo],
+  'viewCount' : bigint,
   'timestamp' : Time,
   'excerpt' : string,
   'category' : StoryCategory,
@@ -72,15 +72,18 @@ export interface _SERVICE {
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deleteLogo' : ActorMethod<[], undefined>,
   'deleteThumbnail' : ActorMethod<[bigint], undefined>,
+  'followWebsite' : ActorMethod<[], undefined>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getComments' : ActorMethod<[bigint], Array<Comment>>,
+  'getFollowerCount' : ActorMethod<[], bigint>,
   'getLatestStories' : ActorMethod<[bigint], Array<Story>>,
   'getLogo' : ActorMethod<[], [] | [Logo]>,
   'getStoriesByCategory' : ActorMethod<[StoryCategory], Array<Story>>,
   'getStory' : ActorMethod<[bigint], Story>,
   'getThumbnail' : ActorMethod<[bigint], [] | [Logo]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'incrementStoryViewCount' : ActorMethod<[bigint], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'searchStories' : ActorMethod<[string], Array<Story>>,

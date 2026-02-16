@@ -1,17 +1,20 @@
 import Time "mo:core/Time";
 import Map "mo:core/Map";
+import Nat "mo:core/Nat";
 import Text "mo:core/Text";
-import Runtime "mo:core/Runtime";
 import Array "mo:core/Array";
+import Runtime "mo:core/Runtime";
 import Int "mo:core/Int";
 import Order "mo:core/Order";
 import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
 import MixinStorage "blob-storage/Mixin";
-import Migration "migration";
+
+import Bool "mo:core/Bool";
 import Blob "mo:core/Blob";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
 (with migration = Migration.run)
 actor {
@@ -59,7 +62,7 @@ actor {
   // Logo Management Functions
   public shared ({ caller }) func uploadLogo(logoData : Blob, contentType : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can upload te site logo");
+      Runtime.trap("Unauthorized: Only admins can upload the site logo");
     };
     siteLogo := ?{
       data = logoData;
@@ -96,12 +99,12 @@ actor {
     timestamp : Time.Time;
     youtubeUrl : ?Text;
     thumbnail : ?Logo;
+    viewCount : Nat;
   };
 
   type Comment = {
-    userId : Text;
-    content : Text;
-    storyId : Nat;
+    name : Text;
+    message : Text;
     timestamp : Time.Time;
   };
 
@@ -114,6 +117,7 @@ actor {
   var nextStoryId = 0;
   let stories = Map.empty<Nat, Story>();
   let comments = Map.empty<Nat, [Comment]>();
+  var followerCount : Nat = 0;
 
   // Story Management Functions
   public shared ({ caller }) func addStory(
@@ -136,6 +140,7 @@ actor {
       timestamp = Time.now();
       youtubeUrl;
       thumbnail = null;
+      viewCount = 0;
     };
     stories.add(storyId, story);
 
@@ -143,8 +148,22 @@ actor {
     storyId;
   };
 
+  public shared ({ caller }) func incrementStoryViewCount(id : Nat) : async () {
+    switch (stories.get(id)) {
+      case (null) {
+        Runtime.trap("Story not found");
+      };
+      case (?story) {
+        let updatedStory = {
+          story with
+          viewCount = story.viewCount + 1;
+        };
+        stories.add(id, updatedStory);
+      };
+    };
+  };
+
   public query func getStory(id : Nat) : async Story {
-    // Public access - anyone can read stories
     switch (stories.get(id)) {
       case (null) { Runtime.trap("Story not found") };
       case (?story) { story };
@@ -217,17 +236,13 @@ actor {
   };
 
   // Comment Functions
-  public shared ({ caller }) func addComment(storyId : Nat, userId : Text, content : Text) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can add comments");
-    };
+  public shared ({ caller }) func addComment(storyId : Nat, name : Text, message : Text) : async () {
     switch (stories.get(storyId)) {
       case (null) { Runtime.trap("Cannot comment on non-existent story") };
       case (?_) {
         let comment : Comment = {
-          userId;
-          content;
-          storyId;
+          name;
+          message;
           timestamp = Time.now();
         };
         let storyComments = switch (comments.get(storyId)) {
@@ -245,6 +260,16 @@ actor {
       case (null) { [] };
       case (?storyComments) { storyComments };
     };
+  };
+
+  // Follower Management
+  public shared ({ caller }) func followWebsite() : async () {
+    followerCount += 1;
+  };
+
+  // Get follower count
+  public query func getFollowerCount() : async Nat {
+    followerCount;
   };
 
   // User Preferences
