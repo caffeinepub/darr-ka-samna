@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useGetLogo, useUploadLogo, useDeleteLogo, createLogoUrl } from '../hooks/useLogo';
 import { Button } from '../components/ui/button';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
-import { Upload, Trash2, Image as ImageIcon, LogIn, Loader2 } from 'lucide-react';
+import { Upload, Trash2, Image as ImageIcon, LogIn, Loader2, BookPlus } from 'lucide-react';
 
 export function AdminLogoPage() {
   const { identity, login, isLoggingIn } = useInternetIdentity();
@@ -20,9 +21,11 @@ export function AdminLogoPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const isAuthenticated = !!identity;
+
+  // Create logo URL for display
   const logoUrl = createLogoUrl(logo || null);
 
-  // Clean up preview URL on unmount
+  // Cleanup preview URL on unmount or file change
   useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -31,16 +34,7 @@ export function AdminLogoPage() {
     };
   }, [previewUrl]);
 
-  // Clean up logo URL on unmount
-  useEffect(() => {
-    return () => {
-      if (logoUrl) {
-        URL.revokeObjectURL(logoUrl);
-      }
-    };
-  }, [logoUrl]);
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setError(null);
     setSuccess(null);
@@ -55,40 +49,43 @@ export function AdminLogoPage() {
     }
 
     // Validate file type
-    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
-    if (!validTypes.includes(file.type)) {
-      setError('Please select a valid image file (PNG, JPEG, or SVG)');
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
       return;
     }
 
-    // Validate file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      setError('File size must be less than 2MB');
+    // Validate file size (2MB max)
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError('Image size must be less than 2MB');
       return;
     }
 
     setSelectedFile(file);
-
-    // Create preview
+    
+    // Create preview URL
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
+    const newPreviewUrl = URL.createObjectURL(file);
+    setPreviewUrl(newPreviewUrl);
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      setError('Please select a file first');
+      return;
+    }
 
     setError(null);
     setSuccess(null);
 
     try {
       const arrayBuffer = await selectedFile.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
+      const data = new Uint8Array(arrayBuffer);
 
       await uploadMutation.mutateAsync({
-        data: uint8Array,
+        data,
         contentType: selectedFile.type,
       });
 
@@ -98,22 +95,40 @@ export function AdminLogoPage() {
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);
       }
+      
+      // Reset file input
+      const fileInput = document.getElementById('logo-upload') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to upload logo. Please try again.');
+      const errorMessage = err.message || 'Failed to upload logo';
+      if (errorMessage.includes('Unauthorized') || errorMessage.includes('admin')) {
+        setError('You do not have permission to upload the logo. Admin access required.');
+      } else {
+        setError(errorMessage);
+      }
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to remove the site logo?')) return;
+    if (!confirm('Are you sure you want to delete the site logo?')) {
+      return;
+    }
 
     setError(null);
     setSuccess(null);
 
     try {
       await deleteMutation.mutateAsync();
-      setSuccess('Logo removed successfully!');
+      setSuccess('Logo deleted successfully!');
     } catch (err: any) {
-      setError(err.message || 'Failed to remove logo. Please try again.');
+      const errorMessage = err.message || 'Failed to delete logo';
+      if (errorMessage.includes('Unauthorized') || errorMessage.includes('admin')) {
+        setError('You do not have permission to delete the logo. Admin access required.');
+      } else {
+        setError(errorMessage);
+      }
     }
   };
 
@@ -152,10 +167,20 @@ export function AdminLogoPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-creepster text-destructive mb-2">Site Logo Management</h1>
-        <p className="text-muted-foreground mb-8">
-          Upload or remove the site logo that appears in the header
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-creepster text-destructive mb-2">Admin Settings</h1>
+            <p className="text-muted-foreground">
+              Manage your site logo and content
+            </p>
+          </div>
+          <Link to="/admin/story/new">
+            <Button className="w-full sm:w-auto bg-destructive hover:bg-destructive/90">
+              <BookPlus className="mr-2 h-4 w-4" />
+              Add Story
+            </Button>
+          </Link>
+        </div>
 
         {error && (
           <Alert variant="destructive" className="mb-6">
@@ -165,41 +190,45 @@ export function AdminLogoPage() {
 
         {success && (
           <Alert className="mb-6 border-green-500/50 bg-green-500/10">
-            <AlertDescription className="text-green-600 dark:text-green-400">{success}</AlertDescription>
+            <AlertDescription className="text-green-600 dark:text-green-400">
+              {success}
+            </AlertDescription>
           </Alert>
         )}
 
-        <div className="grid gap-6">
-          {/* Current Logo */}
-          <Card className="border-destructive/20">
-            <CardHeader>
-              <CardTitle className="text-xl font-creepster">Current Logo</CardTitle>
-              <CardDescription>The logo currently displayed on your site</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {logoLoading ? (
-                <div className="flex items-center justify-center h-32 bg-muted/30 rounded-lg">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
-              ) : logoUrl ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-center bg-muted/30 rounded-lg p-8">
-                    <img
-                      src={logoUrl}
-                      alt="Current site logo"
-                      className="max-h-32 max-w-full object-contain"
-                    />
-                  </div>
+        <Card className="border-destructive/20">
+          <CardHeader>
+            <CardTitle className="text-xl font-creepster flex items-center gap-2">
+              <ImageIcon className="h-5 w-5" />
+              Site Logo
+            </CardTitle>
+            <CardDescription>Upload or update your site logo</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Current Logo */}
+            {logoLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-destructive" />
+              </div>
+            ) : logoUrl ? (
+              <div className="space-y-4">
+                <Label>Current Logo</Label>
+                <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <img
+                    src={logoUrl}
+                    alt="Site logo"
+                    className="max-w-full sm:max-w-xs h-auto rounded-lg border border-destructive/20"
+                  />
                   <Button
                     variant="destructive"
                     onClick={handleDelete}
                     disabled={deleteMutation.isPending}
-                    className="w-full"
+                    className="w-full sm:w-auto"
                   >
                     {deleteMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Removing...
+                        Deleting...
                       </>
                     ) : (
                       <>
@@ -209,52 +238,41 @@ export function AdminLogoPage() {
                     )}
                   </Button>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-32 bg-muted/30 rounded-lg text-muted-foreground">
-                  <ImageIcon className="h-12 w-12 mb-2 opacity-50" />
-                  <p className="text-sm">No logo uploaded</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Upload New Logo */}
-          <Card className="border-destructive/20">
-            <CardHeader>
-              <CardTitle className="text-xl font-creepster">Upload New Logo</CardTitle>
-              <CardDescription>
-                Select a PNG, JPEG, or SVG file (max 2MB). This will replace the current logo.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="logo-upload">Select Image File</Label>
-                <Input
-                  id="logo-upload"
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg,image/svg+xml"
-                  onChange={handleFileSelect}
-                  className="cursor-pointer"
-                />
               </div>
+            ) : (
+              <p className="text-muted-foreground">No logo uploaded yet</p>
+            )}
+
+            {/* Upload New Logo */}
+            <div className="space-y-4">
+              <Label htmlFor="logo-upload">Upload New Logo</Label>
+              <Input
+                id="logo-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                disabled={uploadMutation.isPending}
+                className="w-full border-destructive/20 focus:border-destructive"
+              />
+              <p className="text-xs text-muted-foreground">
+                Upload an image file (max 2MB). Supported formats: JPG, PNG, GIF, WebP
+              </p>
 
               {previewUrl && (
                 <div className="space-y-2">
                   <Label>Preview</Label>
-                  <div className="flex items-center justify-center bg-muted/30 rounded-lg p-8">
-                    <img
-                      src={previewUrl}
-                      alt="Logo preview"
-                      className="max-h-32 max-w-full object-contain"
-                    />
-                  </div>
+                  <img
+                    src={previewUrl}
+                    alt="Logo preview"
+                    className="max-w-full sm:max-w-xs h-auto rounded-lg border border-destructive/20"
+                  />
                 </div>
               )}
 
               <Button
                 onClick={handleUpload}
                 disabled={!selectedFile || uploadMutation.isPending}
-                className="w-full bg-destructive hover:bg-destructive/90"
+                className="w-full sm:w-auto bg-destructive hover:bg-destructive/90"
               >
                 {uploadMutation.isPending ? (
                   <>
@@ -268,9 +286,9 @@ export function AdminLogoPage() {
                   </>
                 )}
               </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

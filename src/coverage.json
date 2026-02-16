@@ -1,63 +1,88 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T03:56:56.986Z",
+  "generatedAt": "2026-02-16T04:05:25.211Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
+    "total": 4,
     "implemented": 3,
     "items": [
       {
-        "id": "REQ-18",
-        "summary": "Create a new admin page that requires the user to be signed in with Internet Identity and provides a form to create a new horror story with fields: Title, Category, and Full story text.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/AdminStoryNewPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/AdminStoryNewPage.tsx"
-        ]
+        "id": "REQ-21",
+        "summary": "Extend the backend story model to support media by storing an optional YouTube URL per story and supporting an optional per-story thumbnail image (binary blob + content type) that can be uploaded and retrieved by story id, with admin-only write access and public read access.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-19",
-        "summary": "Add frontend data layer support to create stories by calling the backend addStory method, and invalidate/refetch relevant story queries (latest, category, and search) after a successful create.",
+        "id": "REQ-22",
+        "summary": "Update the admin create-story UI (frontend/src/pages/AdminStoryNewPage.tsx) to allow: (1) uploading an optional thumbnail image for the story, and (2) entering an optional YouTube video link to be displayed on the story page; ensure validation, clear error messages, and that media is saved alongside story creation.",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/utils/youtube.ts",
           "frontend/src/hooks/useStories.ts",
           "frontend/src/pages/AdminStoryNewPage.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/utils/youtube.ts",
           "frontend/src/hooks/useStories.ts",
           "frontend/src/pages/AdminStoryNewPage.tsx"
         ]
       },
       {
-        "id": "REQ-20",
-        "summary": "Add routing and navigation access for the new admin story page, including a route under /admin (e.g., /admin/stories or /admin/story/new) and a visible navigation entry for authenticated users alongside the existing admin logo link.",
+        "id": "REQ-23",
+        "summary": "Render story media on public pages: show the story thumbnail on story listing cards and the story reading page when available (fallback to the existing placeholder when not), and embed the YouTube video on the story reading page when a YouTube link exists using a responsive, mobile-friendly layout.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/HeaderNav.tsx"
+          "frontend/src/hooks/useThumbnail.ts",
+          "frontend/src/components/StoryCard.tsx",
+          "frontend/src/pages/StoryPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/components/HeaderNav.tsx"
+          "frontend/src/hooks/useThumbnail.ts",
+          "frontend/src/components/StoryCard.tsx",
+          "frontend/src/pages/StoryPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-24",
+        "summary": "Add a clear \"Add Story\" button entry in the admin area and ensure admin-related pages and media UI are mobile-friendly (spacing, stacking, and touch targets).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/AdminLogoPage.tsx",
+          "frontend/src/pages/AdminStoryNewPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/AdminLogoPage.tsx",
+          "frontend/src/pages/AdminStoryNewPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/blob-storage/Mixin.mo",
+    "backend/blob-storage/Storage.mo",
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/components/HeaderNav.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/StoryCard.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useStories.ts",
+    "frontend/src/hooks/useThumbnail.ts",
+    "frontend/src/pages/AdminLogoPage.tsx",
     "frontend/src/pages/AdminStoryNewPage.tsx",
+    "frontend/src/pages/StoryPage.tsx",
+    "frontend/src/utils/youtube.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

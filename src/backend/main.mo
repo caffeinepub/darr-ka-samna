@@ -7,14 +7,17 @@ import Int "mo:core/Int";
 import Order "mo:core/Order";
 import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
+import MixinStorage "blob-storage/Mixin";
+import Migration "migration";
 import Blob "mo:core/Blob";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
+(with migration = Migration.run)
 actor {
-  // Initialize the authorization system
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
+  include MixinStorage();
 
   // User Profile Type
   public type UserProfile = {
@@ -56,7 +59,7 @@ actor {
   // Logo Management Functions
   public shared ({ caller }) func uploadLogo(logoData : Blob, contentType : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can upload the site logo");
+      Runtime.trap("Unauthorized: Only admins can upload te site logo");
     };
     siteLogo := ?{
       data = logoData;
@@ -91,6 +94,8 @@ actor {
     content : Text;
     category : StoryCategory;
     timestamp : Time.Time;
+    youtubeUrl : ?Text;
+    thumbnail : ?Logo;
   };
 
   type Comment = {
@@ -111,7 +116,13 @@ actor {
   let comments = Map.empty<Nat, [Comment]>();
 
   // Story Management Functions
-  public shared ({ caller }) func addStory(title : Text, excerpt : Text, content : Text, category : StoryCategory) : async Nat {
+  public shared ({ caller }) func addStory(
+    title : Text,
+    excerpt : Text,
+    content : Text,
+    category : StoryCategory,
+    youtubeUrl : ?Text,
+  ) : async Nat {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can add stories");
     };
@@ -123,6 +134,8 @@ actor {
       content;
       category;
       timestamp = Time.now();
+      youtubeUrl;
+      thumbnail = null;
     };
     stories.add(storyId, story);
 
@@ -158,11 +171,49 @@ actor {
   };
 
   public query func getLatestStories(limit : Nat) : async [Story] {
-    // Public access - anyone can view latest stories
+    // Public access - anyone can view the latest stories
     let allStories = stories.values().toArray().sort();
     let len = allStories.size();
     let sliceEnd = if (len > limit) { limit } else { len };
     allStories.sliceToArray(0, sliceEnd);
+  };
+
+  // Thumbnail Image Management
+  public shared ({ caller }) func uploadThumbnail(storyId : Nat, thumbnailData : Blob, contentType : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can upload thumbnails");
+    };
+    let logo : Logo = {
+      data = thumbnailData;
+      contentType;
+    };
+    switch (stories.get(storyId)) {
+      case (null) { Runtime.trap("Story not found") };
+      case (?story) {
+        let updatedStory = { story with thumbnail = ?logo };
+        stories.add(storyId, updatedStory);
+      };
+    };
+  };
+
+  public query func getThumbnail(storyId : Nat) : async ?Logo {
+    switch (stories.get(storyId)) {
+      case (null) { Runtime.trap("Story not found") };
+      case (?story) { story.thumbnail };
+    };
+  };
+
+  public shared ({ caller }) func deleteThumbnail(storyId : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can delete thumbnails");
+    };
+    switch (stories.get(storyId)) {
+      case (null) { Runtime.trap("Story not found") };
+      case (?story) {
+        let updatedStory = { story with thumbnail = null };
+        stories.add(storyId, updatedStory);
+      };
+    };
   };
 
   // Comment Functions

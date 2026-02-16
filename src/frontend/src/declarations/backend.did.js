@@ -8,6 +8,17 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const _CaffeineStorageCreateCertificateResult = IDL.Record({
+  'method' : IDL.Text,
+  'blob_hash' : IDL.Text,
+});
+export const _CaffeineStorageRefillInformation = IDL.Record({
+  'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const _CaffeineStorageRefillResult = IDL.Record({
+  'success' : IDL.Opt(IDL.Bool),
+  'topped_up_amount' : IDL.Opt(IDL.Nat),
+});
 export const StoryCategory = IDL.Variant({
   'trueStories' : IDL.Null,
   'indianHorror' : IDL.Null,
@@ -27,29 +38,58 @@ export const Comment = IDL.Record({
   'storyId' : IDL.Nat,
   'timestamp' : Time,
 });
-export const Story = IDL.Record({
-  'id' : IDL.Nat,
-  'title' : IDL.Text,
-  'content' : IDL.Text,
-  'timestamp' : Time,
-  'excerpt' : IDL.Text,
-  'category' : StoryCategory,
-});
 export const Logo = IDL.Record({
   'contentType' : IDL.Text,
   'data' : IDL.Vec(IDL.Nat8),
 });
+export const Story = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+  'thumbnail' : IDL.Opt(Logo),
+  'timestamp' : Time,
+  'excerpt' : IDL.Text,
+  'category' : StoryCategory,
+  'youtubeUrl' : IDL.Opt(IDL.Text),
+});
 
 export const idlService = IDL.Service({
+  '_caffeineStorageBlobIsLive' : IDL.Func(
+      [IDL.Vec(IDL.Nat8)],
+      [IDL.Bool],
+      ['query'],
+    ),
+  '_caffeineStorageBlobsToDelete' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      ['query'],
+    ),
+  '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      [],
+      [],
+    ),
+  '_caffeineStorageCreateCertificate' : IDL.Func(
+      [IDL.Text],
+      [_CaffeineStorageCreateCertificateResult],
+      [],
+    ),
+  '_caffeineStorageRefillCashier' : IDL.Func(
+      [IDL.Opt(_CaffeineStorageRefillInformation)],
+      [_CaffeineStorageRefillResult],
+      [],
+    ),
+  '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addComment' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),
   'addStory' : IDL.Func(
-      [IDL.Text, IDL.Text, IDL.Text, StoryCategory],
+      [IDL.Text, IDL.Text, IDL.Text, StoryCategory, IDL.Opt(IDL.Text)],
       [IDL.Nat],
       [],
     ),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'deleteLogo' : IDL.Func([], [], []),
+  'deleteThumbnail' : IDL.Func([IDL.Nat], [], []),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
@@ -61,6 +101,7 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getStory' : IDL.Func([IDL.Nat], [Story], ['query']),
+  'getThumbnail' : IDL.Func([IDL.Nat], [IDL.Opt(Logo)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -71,11 +112,23 @@ export const idlService = IDL.Service({
   'searchStories' : IDL.Func([IDL.Text], [IDL.Vec(Story)], ['query']),
   'toggleNightMode' : IDL.Func([IDL.Text, IDL.Bool], [IDL.Bool], []),
   'uploadLogo' : IDL.Func([IDL.Vec(IDL.Nat8), IDL.Text], [], []),
+  'uploadThumbnail' : IDL.Func([IDL.Nat, IDL.Vec(IDL.Nat8), IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const _CaffeineStorageCreateCertificateResult = IDL.Record({
+    'method' : IDL.Text,
+    'blob_hash' : IDL.Text,
+  });
+  const _CaffeineStorageRefillInformation = IDL.Record({
+    'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const _CaffeineStorageRefillResult = IDL.Record({
+    'success' : IDL.Opt(IDL.Bool),
+    'topped_up_amount' : IDL.Opt(IDL.Nat),
+  });
   const StoryCategory = IDL.Variant({
     'trueStories' : IDL.Null,
     'indianHorror' : IDL.Null,
@@ -95,29 +148,58 @@ export const idlFactory = ({ IDL }) => {
     'storyId' : IDL.Nat,
     'timestamp' : Time,
   });
-  const Story = IDL.Record({
-    'id' : IDL.Nat,
-    'title' : IDL.Text,
-    'content' : IDL.Text,
-    'timestamp' : Time,
-    'excerpt' : IDL.Text,
-    'category' : StoryCategory,
-  });
   const Logo = IDL.Record({
     'contentType' : IDL.Text,
     'data' : IDL.Vec(IDL.Nat8),
   });
+  const Story = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'content' : IDL.Text,
+    'thumbnail' : IDL.Opt(Logo),
+    'timestamp' : Time,
+    'excerpt' : IDL.Text,
+    'category' : StoryCategory,
+    'youtubeUrl' : IDL.Opt(IDL.Text),
+  });
   
   return IDL.Service({
+    '_caffeineStorageBlobIsLive' : IDL.Func(
+        [IDL.Vec(IDL.Nat8)],
+        [IDL.Bool],
+        ['query'],
+      ),
+    '_caffeineStorageBlobsToDelete' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        ['query'],
+      ),
+    '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        [],
+        [],
+      ),
+    '_caffeineStorageCreateCertificate' : IDL.Func(
+        [IDL.Text],
+        [_CaffeineStorageCreateCertificateResult],
+        [],
+      ),
+    '_caffeineStorageRefillCashier' : IDL.Func(
+        [IDL.Opt(_CaffeineStorageRefillInformation)],
+        [_CaffeineStorageRefillResult],
+        [],
+      ),
+    '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addComment' : IDL.Func([IDL.Nat, IDL.Text, IDL.Text], [], []),
     'addStory' : IDL.Func(
-        [IDL.Text, IDL.Text, IDL.Text, StoryCategory],
+        [IDL.Text, IDL.Text, IDL.Text, StoryCategory, IDL.Opt(IDL.Text)],
         [IDL.Nat],
         [],
       ),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'deleteLogo' : IDL.Func([], [], []),
+    'deleteThumbnail' : IDL.Func([IDL.Nat], [], []),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getComments' : IDL.Func([IDL.Nat], [IDL.Vec(Comment)], ['query']),
@@ -129,6 +211,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getStory' : IDL.Func([IDL.Nat], [Story], ['query']),
+    'getThumbnail' : IDL.Func([IDL.Nat], [IDL.Opt(Logo)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
@@ -139,6 +222,11 @@ export const idlFactory = ({ IDL }) => {
     'searchStories' : IDL.Func([IDL.Text], [IDL.Vec(Story)], ['query']),
     'toggleNightMode' : IDL.Func([IDL.Text, IDL.Bool], [IDL.Bool], []),
     'uploadLogo' : IDL.Func([IDL.Vec(IDL.Nat8), IDL.Text], [], []),
+    'uploadThumbnail' : IDL.Func(
+        [IDL.Nat, IDL.Vec(IDL.Nat8), IDL.Text],
+        [],
+        [],
+      ),
   });
 };
 

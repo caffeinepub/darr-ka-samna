@@ -1,4 +1,5 @@
 import { useParams, Link } from '@tanstack/react-router';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, Clock, Tag } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -9,13 +10,29 @@ import { CommentsSection } from '../components/CommentsSection';
 import { AdSlotPlaceholder } from '../components/AdSlotPlaceholder';
 import { AffiliateLinksPlaceholder } from '../components/AffiliateLinksPlaceholder';
 import { useStory } from '../hooks/useStories';
+import { useGetThumbnail, createThumbnailUrl } from '../hooks/useThumbnail';
 import { useNightMode } from '../hooks/useNightMode';
 import { getCategoryLabel } from '../lib/categories';
+import { getYouTubeEmbedUrl } from '../utils/youtube';
 
 export function StoryPage() {
   const { storyId } = useParams({ from: '/story/$storyId' });
   const { data: story, isLoading, error } = useStory(BigInt(storyId));
+  const { data: thumbnail } = useGetThumbnail(BigInt(storyId));
   const { nightMode } = useNightMode();
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+
+  // Create and cleanup thumbnail URL
+  useEffect(() => {
+    const url = createThumbnailUrl(thumbnail || null);
+    setThumbnailUrl(url);
+
+    return () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [thumbnail]);
 
   if (isLoading) {
     return (
@@ -42,6 +59,9 @@ export function StoryPage() {
 
   const categoryLabel = getCategoryLabel(story.category);
   const date = new Date(Number(story.timestamp) / 1000000);
+  const placeholderImage = '/assets/generated/story-thumbnail-placeholder.dim_800x450.png';
+  const displayImage = thumbnailUrl || placeholderImage;
+  const youtubeEmbedUrl = story.youtubeUrl ? getYouTubeEmbedUrl(story.youtubeUrl) : null;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -57,6 +77,15 @@ export function StoryPage() {
         {/* Story Header */}
         <Card className={`mb-8 ${nightMode ? 'bg-black/90 border-destructive/30' : 'bg-card/50'} backdrop-blur-sm transition-colors duration-300`}>
           <CardContent className="pt-8">
+            {/* Thumbnail */}
+            <div className="relative w-full aspect-video overflow-hidden rounded-lg mb-6">
+              <img
+                src={displayImage}
+                alt={story.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
             <div className="flex flex-wrap items-center gap-4 mb-6">
               <Badge variant="outline" className="border-destructive/50 text-destructive">
                 <Tag className="h-3 w-3 mr-1" />
@@ -71,11 +100,26 @@ export function StoryPage() {
               </div>
             </div>
 
-            <h1 className={`text-4xl md:text-5xl font-creepster mb-6 ${nightMode ? 'text-red-500' : 'text-destructive'} transition-colors duration-300`}>
+            <h1 className={`text-3xl md:text-4xl lg:text-5xl font-creepster mb-6 ${nightMode ? 'text-red-500' : 'text-destructive'} transition-colors duration-300`}>
               {story.title}
             </h1>
 
             <Separator className="mb-8 bg-border/50" />
+
+            {/* YouTube Video Embed */}
+            {youtubeEmbedUrl && (
+              <div className="mb-8">
+                <div className="w-full aspect-video rounded-lg overflow-hidden border border-destructive/20">
+                  <iframe
+                    src={youtubeEmbedUrl}
+                    title="Story video"
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Story Content */}
             <div className={`prose prose-lg max-w-none ${nightMode ? 'prose-invert' : ''}`}>

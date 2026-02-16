@@ -2,29 +2,54 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-new-admin-page-that-requires-the-user-to-be-signed-in-with-internet-identity-and-provides-a-form-to-create-a-new-horror-story-with-fields-title-category-and-full-story-text",
-      "featureTitle": "Create a new admin page that requires the user to be signed in with Internet Identity and provides a form to create a new horror story with fields: Title, Category, and Full story text.",
-      "files": [
-        "frontend/src/pages/AdminStoryNewPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-18"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-frontend-data-layer-support-to-create-stories-by-calling-the-backend-addstory-method-and-invalidate-refetch-relevant-story-queries-latest-category-and-search-after-a-successful-create",
-      "featureTitle": "Add frontend data layer support to create stories by calling the backend addStory method, and invalidate/refetch relevant story queries (latest, category, and search) after a successful create.",
+      "featureId": "feature-update-the-admin-create-story-ui-frontend-src-pages-adminstorynewpage-tsx-to-allow-1-uploading-an-optional-thumbnail-image-for-the-story-and-2-entering-an-optional-youtube-video-link-to-be-displayed-on-the-story-page-ensure-validation-clear-error-messages-and-that-media-is-saved-alongside-story-creation",
+      "featureTitle": "Update the admin create-story UI (frontend/src/pages/AdminStoryNewPage.tsx) to allow: (1) uploading an optional thumbnail image for the story, and (2) entering an optional YouTube video link to be displayed on the story page; ensure validation, clear error messages, and that media is saved alongside story creation.",
       "files": [
         "frontend/src/hooks/useStories.ts",
+        "frontend/src/pages/AdminStoryNewPage.tsx",
+        "frontend/src/utils/youtube.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-22"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-render-story-media-on-public-pages-show-the-story-thumbnail-on-story-listing-cards-and-the-story-reading-page-when-available-fallback-to-the-existing-placeholder-when-not-and-embed-the-youtube-video-on-the-story-reading-page-when-a-youtube-link-exists-using-a-responsive-mobile-friendly-layout",
+      "featureTitle": "Render story media on public pages: show the story thumbnail on story listing cards and the story reading page when available (fallback to the existing placeholder when not), and embed the YouTube video on the story reading page when a YouTube link exists using a responsive, mobile-friendly layout.",
+      "files": [
+        "frontend/src/components/StoryCard.tsx",
+        "frontend/src/hooks/useThumbnail.ts",
+        "frontend/src/pages/StoryPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-23"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-clear-add-story-button-entry-in-the-admin-area-and-ensure-admin-related-pages-and-media-ui-are-mobile-friendly-spacing-stacking-and-touch-targets",
+      "featureTitle": "Add a clear \"Add Story\" button entry in the admin area and ensure admin-related pages and media UI are mobile-friendly (spacing, stacking, and touch targets).",
+      "files": [
+        "frontend/src/pages/AdminLogoPage.tsx",
         "frontend/src/pages/AdminStoryNewPage.tsx"
       ],
       "components": [
@@ -33,30 +58,11 @@
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
         "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-19"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-routing-and-navigation-access-for-the-new-admin-story-page-including-a-route-under-admin-e-g-admin-stories-or-admin-story-new-and-a-visible-navigation-entry-for-authenticated-users-alongside-the-existing-admin-logo-link",
-      "featureTitle": "Add routing and navigation access for the new admin story page, including a route under /admin (e.g., /admin/stories or /admin/story/new) and a visible navigation entry for authenticated users alongside the existing admin logo link.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/HeaderNav.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-20"
+        "REQ-24"
       ],
       "confidence": "high"
     }

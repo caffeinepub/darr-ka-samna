@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
+import { useUploadThumbnail } from './useThumbnail';
 import type { Story, StoryCategory } from '../backend';
 
 export function useLatestStories(limit: number = 20) {
@@ -57,6 +58,7 @@ export function useSearchStories(query: string) {
 export function useCreateStory() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
+  const uploadThumbnail = useUploadThumbnail();
 
   return useMutation({
     mutationFn: async ({
@@ -64,14 +66,37 @@ export function useCreateStory() {
       excerpt,
       content,
       category,
+      youtubeUrl,
+      thumbnail,
     }: {
       title: string;
       excerpt: string;
       content: string;
       category: StoryCategory;
+      youtubeUrl?: string | null;
+      thumbnail?: { data: Uint8Array; contentType: string } | null;
     }) => {
       if (!actor) throw new Error('Actor not initialized');
-      return actor.addStory(title, excerpt, content, category);
+      
+      // Create the story with optional YouTube URL
+      const storyId = await actor.addStory(
+        title, 
+        excerpt, 
+        content, 
+        category, 
+        youtubeUrl || null
+      );
+
+      // Upload thumbnail if provided
+      if (thumbnail) {
+        await uploadThumbnail.mutateAsync({
+          storyId,
+          data: thumbnail.data,
+          contentType: thumbnail.contentType,
+        });
+      }
+
+      return storyId;
     },
     onSuccess: () => {
       // Invalidate all story-related queries to refresh the data

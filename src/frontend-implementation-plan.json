@@ -1,64 +1,82 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin story creation page (Internet Identity) with React Query create + refresh",
+  "title": "Story media support (thumbnails + YouTube) and improved admin/mobile UX",
   "requirements": [
     {
-      "id": "REQ-18",
-      "summary": "Add an authenticated admin page with a responsive create-horror-story form (title, category, full text) supporting Hindi text input.",
+      "id": "REQ-22",
+      "summary": "Enhance the admin story creation form to capture optional thumbnail upload and optional YouTube URL, validate inputs, and persist media during story creation with query refresh.",
       "acceptanceCriteria": [
-        "When not authenticated, the admin story page shows an auth-required state with a Sign In action (similar UX to AdminLogoPage).",
-        "When authenticated, the page shows a create-story form with inputs for Title, Category (selecting from the existing categories list), and Full story text.",
-        "The form accepts and preserves Hindi/Devanagari text in Title and Full story text inputs without rendering issues.",
-        "The page is responsive and usable on mobile screens (no horizontal overflow; inputs/buttons fit within viewport)."
+        "Admin create-story form includes an optional thumbnail file input with client-side validation (image-only MIME types and a reasonable max size consistent with existing logo upload UX).",
+        "Admin create-story form includes an optional YouTube URL input; invalid URLs show an English validation error and do not submit.",
+        "On successful creation, the story is created and (if provided) its YouTube URL is saved and its thumbnail is uploaded/associated with the newly created story id.",
+        "After success, relevant React Query story queries are invalidated/refetched (latest/category/search) so the new story and its media are visible without a hard refresh.",
+        "All new user-facing strings introduced by this change are in English."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/AdminStoryNewPage.tsx",
+          "path": "frontend/src/utils/youtube.ts",
           "operation": "create",
-          "description": "Create the new admin story creation page UI. Mirror the unauthenticated auth-required Card UX from AdminLogoPage (Sign In action via useInternetIdentity). When authenticated, render a responsive form using shadcn-ui components (e.g., Card, Button, Input, Textarea, Select) and populate the Category select from the existing categories list in frontend/src/lib/categories.ts. Ensure the form controls use full-width, mobile-friendly layout and do not constrain/transform Hindi text. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-19",
-      "summary": "Add a React Query mutation to create stories via backend addStory and refresh latest/category/search story queries after success, surfacing errors on the admin page.",
-      "acceptanceCriteria": [
-        "Submitting the form calls the backend to create a story.",
-        "After successful creation, the app refreshes the latest stories list so the new story can appear without a hard reload.",
-        "Error states (including unauthorized/admin-only errors) are surfaced to the user in a readable message on the admin story page."
-      ],
-      "file_operations": [
+          "description": "Add YouTube URL parsing/validation helpers that accept common watch/share URL formats, extract a safe video id, and produce an embed-safe URL suitable for iframe usage (no arbitrary HTML)."
+        },
         {
           "path": "frontend/src/hooks/useStories.ts",
           "operation": "modify",
-          "description": "Add a story-creation data-layer hook (React Query mutation) that calls the backend capability addStory via useActor(). The hook should accept title/content/category, derive an excerpt client-side (e.g., first N characters from content, preserving Unicode/Hindi text), and on success invalidate/refetch relevant queries (query keys for latest, category, and search) so HomePage/CategoryPage/SearchPage refresh without a hard reload."
+          "description": "Update story creation mutation to accept an optional YouTube URL (null when omitted) and to upload an optional thumbnail after story creation using existing backend actor capabilities; ensure React Query invalidates/refetches relevant story queries (latest/category/search) and any thumbnail-related caches. (Uses core-infrastructure actor wiring and follows authorization component patterns for authenticated calls; Verify the component's usage instructions before implementing.)"
         },
         {
           "path": "frontend/src/pages/AdminStoryNewPage.tsx",
           "operation": "modify",
-          "description": "Wire the create-story form submission to the new useStories create mutation, show pending/disabled UI while submitting, and display success and readable error messages (including unauthorized/admin-only failures) using shadcn-ui Alert components. Verify the component's usage instructions before implementing."
+          "description": "Extend the create-story form UI to include: (1) optional thumbnail file input with image MIME validation and max size consistent with AdminLogoPage (2MB), including preview with object URL cleanup; (2) optional YouTube URL input with validation errors in English and an optional responsive preview; and save media during submission by passing youtubeUrl and thumbnail to the create mutation. Keep layout mobile-friendly (stack controls/buttons on small screens). (Use existing shadcn-ui form components already present in the page; Verify the component's usage instructions before implementing.)"
         }
       ]
     },
     {
-      "id": "REQ-20",
-      "summary": "Register a new /admin route for story creation and add a header navigation link visible only to authenticated users (desktop and mobile).",
+      "id": "REQ-23",
+      "summary": "Display story thumbnails on story cards and story page with placeholder fallback, and embed YouTube videos on the story page responsively and safely.",
       "acceptanceCriteria": [
-        "A new route exists for the admin story creation page and can be visited directly by URL.",
-        "When authenticated, the site header navigation shows a link to the admin story creation page (desktop and mobile menus).",
-        "When not authenticated, the admin story creation page is still routable but shows the auth-required state instead of the form."
+        "Story cards (frontend/src/components/StoryCard.tsx) display a thumbnail image area; if the story has no uploaded thumbnail, the existing placeholder thumbnail is shown.",
+        "Story reading page (frontend/src/pages/StoryPage.tsx) displays the thumbnail near the story header when available, otherwise uses the existing placeholder thumbnail behavior.",
+        "If a story has a YouTube URL, StoryPage embeds it as a responsive 16:9 iframe (or equivalent) that fits on mobile without horizontal scrolling.",
+        "The YouTube embed uses an embed-safe URL derived from the provided link (e.g., watch/share forms supported) and does not execute arbitrary HTML from story content.",
+        "Thumbnail object URLs created in the browser are cleaned up to avoid memory leaks (similar to existing logo preview behavior)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add a new TanStack Router route under /admin (e.g., /admin/story/new) that renders AdminStoryNewPage, and include it in the route tree so it is directly navigable by URL."
+          "path": "frontend/src/hooks/useThumbnail.ts",
+          "operation": "create",
+          "description": "Create React Query hooks to fetch a story thumbnail by story id and a helper to convert returned logo/thumbnail bytes into a browser object URL for <img> display; ensure callers can revoke created object URLs to prevent leaks. (Uses core-infrastructure actor wiring; Verify the component's usage instructions before implementing.)"
         },
         {
-          "path": "frontend/src/components/HeaderNav.tsx",
+          "path": "frontend/src/components/StoryCard.tsx",
           "operation": "modify",
-          "description": "Add a visible navigation entry for authenticated users to reach the new admin story creation route, alongside the existing admin logo link, in both desktop nav and the mobile Sheet menu. Use existing shadcn-ui navigation building blocks already in this file. Verify the component's usage instructions before implementing."
+          "description": "Add a thumbnail area to the story card: fetch and render the story thumbnail (via the new thumbnail hook) and fall back to the existing placeholder image at frontend/public/assets/generated/story-thumbnail-placeholder.dim_800x450.png when none exists; ensure any object URL used for the thumbnail is revoked on change/unmount. (Use existing shadcn-ui Card/Button primitives already imported; Verify the component's usage instructions before implementing.)"
+        },
+        {
+          "path": "frontend/src/pages/StoryPage.tsx",
+          "operation": "modify",
+          "description": "Render the story thumbnail near the header using the thumbnail hook with fallback to frontend/public/assets/generated/story-thumbnail-placeholder.dim_800x450.png and object-URL cleanup; if youtubeUrl exists, embed a responsive 16:9 iframe using an embed-safe URL from the YouTube utility (no HTML injection) and ensure it is mobile-friendly (no horizontal scrolling). (Use existing shadcn-ui Card/Separator/Badge/Button primitives already imported; Verify the component's usage instructions before implementing.)"
+        }
+      ]
+    },
+    {
+      "id": "REQ-24",
+      "summary": "Add a prominent Add Story entry within the admin area and make admin pages (create story + logo) mobile-friendly, including the new media controls.",
+      "acceptanceCriteria": [
+        "Authenticated users can see a clearly labeled \"Add Story\" button/link within the admin area (not only buried in navigation), which takes them to the existing /admin/story/new route.",
+        "Admin pages (at minimum: AdminStoryNewPage and AdminLogoPage) render cleanly on small screens (no overflow, form controls full-width where appropriate, buttons accessible).",
+        "Media controls added for thumbnails/YouTube remain usable on mobile (file input, preview, and video preview/embed sizing)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AdminLogoPage.tsx",
+          "operation": "modify",
+          "description": "Add a prominent, clearly labeled \"Add Story\" button/link within the admin page content that routes to /admin/story/new; adjust spacing/layout for small screens so controls and buttons are full-width and touch-friendly without overflow. (Uses existing shadcn-ui Button/Card components already used on the page; Verify the component's usage instructions before implementing.)"
+        },
+        {
+          "path": "frontend/src/pages/AdminStoryNewPage.tsx",
+          "operation": "modify",
+          "description": "Refine mobile UX for the admin create-story page: ensure form sections stack cleanly, inputs are full-width, and action buttons have adequate spacing/touch targets on small screens while keeping the new thumbnail/YouTube controls usable. (Uses existing shadcn-ui components; Verify the component's usage instructions before implementing.)"
         }
       ]
     }

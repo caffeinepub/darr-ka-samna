@@ -22,9 +22,11 @@ export interface Story {
     id: bigint;
     title: string;
     content: string;
+    thumbnail?: Logo;
     timestamp: Time;
     excerpt: string;
     category: StoryCategory;
+    youtubeUrl?: string;
 }
 export interface UserProfile {
     name: string;
@@ -42,9 +44,10 @@ export enum UserRole {
 }
 export interface backendInterface {
     addComment(storyId: bigint, userId: string, content: string): Promise<void>;
-    addStory(title: string, excerpt: string, content: string, category: StoryCategory): Promise<bigint>;
+    addStory(title: string, excerpt: string, content: string, category: StoryCategory, youtubeUrl: string | null): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteLogo(): Promise<void>;
+    deleteThumbnail(storyId: bigint): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getComments(storyId: bigint): Promise<Array<Comment>>;
@@ -52,10 +55,12 @@ export interface backendInterface {
     getLogo(): Promise<Logo | null>;
     getStoriesByCategory(category: StoryCategory): Promise<Array<Story>>;
     getStory(id: bigint): Promise<Story>;
+    getThumbnail(storyId: bigint): Promise<Logo | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchStories(queryText: string): Promise<Array<Story>>;
     toggleNightMode(_userId: string, nightModeEnabled: boolean): Promise<boolean>;
     uploadLogo(logoData: Uint8Array, contentType: string): Promise<void>;
+    uploadThumbnail(storyId: bigint, thumbnailData: Uint8Array, contentType: string): Promise<void>;
 }

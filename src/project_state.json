@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 11,
-  "summary": "Build a dark, creepy Hindi horror storytelling website named \"Darr Ka Samna\" with a black/red cinematic theme, featuring a blog/story system with category-wise browsing, post/article reading pages (Hindi font support), homepage latest stories, search, comments, night mode reading, mobile-friendly layout, share buttons, related posts section, thumbnail image placeholders, and ad/affiliate placement areas; seed the site with the first story \"काली फाड़ी की चीखें\" (Indian Horror); email subscribe box removed.",
+  "projectStateVersion": 13,
+  "summary": "Build a dark, creepy Hindi horror storytelling website named \"Darr Ka Samna\" with a black/red cinematic theme, featuring a blog/story system with category-wise browsing, post/article reading pages (Hindi font support), homepage latest stories, search, comments, night mode reading, mobile-friendly layout, share buttons, related posts section, ad/affiliate placement areas, and admin tooling for managing stories and site branding; add media support including story thumbnail image uploads and embedding YouTube video links within stories; seed the site with the first story \"काली फाड़ी की चीखें\" (Indian Horror); email subscribe box removed.",
   "architectural_notes": [
     "Email subscribe box removed completely (no email subscription feature)."
   ],
@@ -153,6 +153,30 @@
         "REQ-20"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-admin-create-story-ui-frontend-src-pages-adminstorynewpage-tsx-to-allow-1-uploading-an-optional-thumbnail-image-for-the-story-and-2-entering-an-optional-youtube-video-link-to-be-displayed-on-the-story-page-ensure-validation-clear-error-messages-and-that-media-is-saved-alongside-story-creation",
+      "title": "Update the admin create-story UI (frontend/src/pages/AdminStoryNewPage.tsx) to allow: (1) uploading an optional thumbnail image for the story, and (2) entering an optional YouTube video link to be displayed on the story page; ensure validation, clear error messages, and that media is saved alongside story creation.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-render-story-media-on-public-pages-show-the-story-thumbnail-on-story-listing-cards-and-the-story-reading-page-when-available-fallback-to-the-existing-placeholder-when-not-and-embed-the-youtube-video-on-the-story-reading-page-when-a-youtube-link-exists-using-a-responsive-mobile-friendly-layout",
+      "title": "Render story media on public pages: show the story thumbnail on story listing cards and the story reading page when available (fallback to the existing placeholder when not), and embed the YouTube video on the story reading page when a YouTube link exists using a responsive, mobile-friendly layout.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-clear-add-story-button-entry-in-the-admin-area-and-ensure-admin-related-pages-and-media-ui-are-mobile-friendly-spacing-stacking-and-touch-targets",
+      "title": "Add a clear \"Add Story\" button entry in the admin area and ensure admin-related pages and media UI are mobile-friendly (spacing, stacking, and touch targets).",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -284,6 +308,32 @@
       "id": "AR-25",
       "summary": "Admin panel content system to add horror stories (Add Story) with fields: Title, Category, Full story text; publish so homepage shows latest stories in newest-first order",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Add media support: allow uploading a thumbnail image for each story via admin and display it on story cards and story pages",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Allow adding a YouTube video link within a story (admin input + embed/display on story reading page)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Add an \"Add Story\" button in the admin panel to start the create-story flow",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Extend the backend story model to support media by storing an optional YouTube URL per story and supporting an optional per-story thumbnail image (binary blob + content type) that can be uploaded and retrieved by story id, with admin-only write access and public read access.",
+      "reqIds": [
+        "REQ-21"
+      ],
       "status": "pending"
     }
   ],

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useCreateStory } from '../hooks/useStories';
@@ -9,8 +9,9 @@ import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { LogIn, Loader2, BookPlus, CheckCircle } from 'lucide-react';
+import { LogIn, Loader2, BookPlus, CheckCircle, Upload, X, Image as ImageIcon, Video } from 'lucide-react';
 import { categories } from '../lib/categories';
+import { isValidYouTubeUrl, getYouTubeEmbedUrl } from '../utils/youtube';
 import type { StoryCategory } from '../backend';
 
 export function AdminStoryNewPage() {
@@ -21,15 +22,87 @@ export function AdminStoryNewPage() {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<StoryCategory | ''>('');
   const [content, setContent] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [youtubeError, setYoutubeError] = useState<string | null>(null);
 
   const isAuthenticated = !!identity;
+
+  // Cleanup preview URL on unmount or file change
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setError(null);
+
+    if (!file) {
+      setSelectedFile(null);
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
+      }
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (2MB max)
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError('Image size must be less than 2MB');
+      return;
+    }
+
+    setSelectedFile(file);
+    
+    // Create preview URL
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    const newPreviewUrl = URL.createObjectURL(file);
+    setPreviewUrl(newPreviewUrl);
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    // Reset file input
+    const fileInput = document.getElementById('thumbnail') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+  const handleYoutubeUrlChange = (value: string) => {
+    setYoutubeUrl(value);
+    setYoutubeError(null);
+    
+    if (value.trim() && !isValidYouTubeUrl(value)) {
+      setYoutubeError('Please enter a valid YouTube URL (e.g., https://www.youtube.com/watch?v=... or https://youtu.be/...)');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setYoutubeError(null);
 
     // Validation
     if (!title.trim()) {
@@ -47,15 +120,33 @@ export function AdminStoryNewPage() {
       return;
     }
 
+    // Validate YouTube URL if provided
+    if (youtubeUrl.trim() && !isValidYouTubeUrl(youtubeUrl)) {
+      setYoutubeError('Please enter a valid YouTube URL');
+      return;
+    }
+
     try {
       // Generate excerpt from first 150 characters of content
       const excerpt = content.trim().substring(0, 150) + (content.trim().length > 150 ? '...' : '');
+
+      // Prepare thumbnail data if file is selected
+      let thumbnailData: { data: Uint8Array; contentType: string } | null = null;
+      if (selectedFile) {
+        const arrayBuffer = await selectedFile.arrayBuffer();
+        thumbnailData = {
+          data: new Uint8Array(arrayBuffer),
+          contentType: selectedFile.type,
+        };
+      }
 
       await createMutation.mutateAsync({
         title: title.trim(),
         excerpt,
         content: content.trim(),
         category,
+        youtubeUrl: youtubeUrl.trim() || null,
+        thumbnail: thumbnailData,
       });
 
       setSuccess('Story created successfully!');
@@ -64,6 +155,8 @@ export function AdminStoryNewPage() {
       setTitle('');
       setCategory('');
       setContent('');
+      setYoutubeUrl('');
+      handleRemoveFile();
 
       // Navigate to home after a short delay
       setTimeout(() => {
@@ -111,10 +204,14 @@ export function AdminStoryNewPage() {
     );
   }
 
+  const youtubeEmbedUrl = youtubeUrl.trim() && isValidYouTubeUrl(youtubeUrl) 
+    ? getYouTubeEmbedUrl(youtubeUrl) 
+    : null;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl font-creepster text-destructive mb-2">Create Horror Story</h1>
+        <h1 className="text-3xl md:text-4xl font-creepster text-destructive mb-2">Create Horror Story</h1>
         <p className="text-muted-foreground mb-8">
           Share a spine-chilling tale that will haunt your readers
         </p>
@@ -155,7 +252,7 @@ export function AdminStoryNewPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter story title (Hindi/English supported)"
-                  className="border-destructive/20 focus:border-destructive"
+                  className="w-full border-destructive/20 focus:border-destructive"
                   disabled={createMutation.isPending}
                   maxLength={200}
                 />
@@ -174,7 +271,7 @@ export function AdminStoryNewPage() {
                   onValueChange={(value) => setCategory(value as StoryCategory)}
                   disabled={createMutation.isPending}
                 >
-                  <SelectTrigger className="border-destructive/20 focus:border-destructive">
+                  <SelectTrigger className="w-full border-destructive/20 focus:border-destructive">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -192,6 +289,78 @@ export function AdminStoryNewPage() {
                 )}
               </div>
 
+              {/* Thumbnail Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="thumbnail" className="text-base flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" />
+                  Thumbnail Image (Optional)
+                </Label>
+                <div className="space-y-3">
+                  <Input
+                    id="thumbnail"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={createMutation.isPending}
+                    className="w-full border-destructive/20 focus:border-destructive"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Upload an image (max 2MB). Supported formats: JPG, PNG, GIF, WebP
+                  </p>
+                  
+                  {previewUrl && (
+                    <div className="relative w-full max-w-md">
+                      <img
+                        src={previewUrl}
+                        alt="Thumbnail preview"
+                        className="w-full h-auto rounded-lg border border-destructive/20"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={handleRemoveFile}
+                        disabled={createMutation.isPending}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* YouTube URL */}
+              <div className="space-y-2">
+                <Label htmlFor="youtubeUrl" className="text-base flex items-center gap-2">
+                  <Video className="h-4 w-4" />
+                  YouTube Video URL (Optional)
+                </Label>
+                <Input
+                  id="youtubeUrl"
+                  type="url"
+                  value={youtubeUrl}
+                  onChange={(e) => handleYoutubeUrlChange(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                  className="w-full border-destructive/20 focus:border-destructive"
+                  disabled={createMutation.isPending}
+                />
+                {youtubeError && (
+                  <p className="text-xs text-destructive">{youtubeError}</p>
+                )}
+                {youtubeEmbedUrl && (
+                  <div className="w-full aspect-video rounded-lg overflow-hidden border border-destructive/20">
+                    <iframe
+                      src={youtubeEmbedUrl}
+                      title="YouTube video preview"
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                )}
+              </div>
+
               {/* Content */}
               <div className="space-y-2">
                 <Label htmlFor="content" className="text-base">
@@ -202,7 +371,7 @@ export function AdminStoryNewPage() {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Write your horror story here... (Hindi/English supported)"
-                  className="min-h-[300px] border-destructive/20 focus:border-destructive resize-y"
+                  className="min-h-[300px] w-full border-destructive/20 focus:border-destructive resize-y"
                   disabled={createMutation.isPending}
                 />
                 <p className="text-xs text-muted-foreground">
@@ -211,7 +380,7 @@ export function AdminStoryNewPage() {
               </div>
 
               {/* Submit Button */}
-              <div className="flex gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button
                   type="submit"
                   disabled={createMutation.isPending}

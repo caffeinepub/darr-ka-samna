@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Add an authenticated admin page to create new horror stories (title, category, full text) and have new stories appear in the app without a hard reload.
+**Goal:** Add per-story media support (optional thumbnail uploads and optional YouTube embeds) and improve admin discoverability and mobile usability.
 
 **Planned changes:**
-- Add a new admin route under `/admin` for creating stories that is always routable, but shows an auth-required state with Sign In when the user is not authenticated (matching the existing AdminLogoPage UX pattern).
-- Build a responsive create-story form for authenticated users with fields: Title, Category (selected from existing categories list), and Full story text; ensure Hindi/Devanagari input is preserved and renders correctly.
-- Implement frontend data-layer support to submit the form via the backend `addStory` method, surface readable errors (including unauthorized/admin-only), and invalidate/refetch latest, category, and search story queries after success.
-- Add a visible navigation entry (desktop and mobile) to the new admin story creation page for authenticated users alongside the existing admin logo link.
+- Extend the backend story model to store an optional YouTube URL and an optional thumbnail image (bytes + content type) per story, with admin-only write and public read by story id.
+- Update the admin create-story page to allow uploading an optional image thumbnail and entering an optional YouTube URL, including validation, clear English errors, and saving media during story creation.
+- Update public story UI to display thumbnails on story cards and the story page (fallback to the existing placeholder when none) and embed YouTube videos on the story page with a responsive, mobile-friendly layout.
+- Add a clearly visible “Add Story” entry/button in the admin area linking to `/admin/story/new`, and improve mobile layout/spacing for key admin pages (including media controls).
 
-**User-visible outcome:** Signed-in users can open an admin page to create a new horror story with title/category/full text (including Hindi text), submit it to the backend, and see it appear in the refreshed story lists without reloading the page; non-authenticated visitors see a Sign In required state.
+**User-visible outcome:** Admins can create stories with an optional thumbnail and optional YouTube link; readers see thumbnails on listings and story pages (or a placeholder) and see an embedded, mobile-friendly YouTube video when provided; the admin area has an obvious “Add Story” action and works better on small screens.

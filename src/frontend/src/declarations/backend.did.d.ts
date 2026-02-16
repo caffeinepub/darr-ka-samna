@@ -21,9 +21,11 @@ export interface Story {
   'id' : bigint,
   'title' : string,
   'content' : string,
+  'thumbnail' : [] | [Logo],
   'timestamp' : Time,
   'excerpt' : string,
   'category' : StoryCategory,
+  'youtubeUrl' : [] | [string],
 }
 export type StoryCategory = { 'trueStories' : null } |
   { 'indianHorror' : null } |
@@ -34,12 +36,42 @@ export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
 export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addComment' : ActorMethod<[bigint, string, string], undefined>,
-  'addStory' : ActorMethod<[string, string, string, StoryCategory], bigint>,
+  'addStory' : ActorMethod<
+    [string, string, string, StoryCategory, [] | [string]],
+    bigint
+  >,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deleteLogo' : ActorMethod<[], undefined>,
+  'deleteThumbnail' : ActorMethod<[bigint], undefined>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getComments' : ActorMethod<[bigint], Array<Comment>>,
@@ -47,12 +79,14 @@ export interface _SERVICE {
   'getLogo' : ActorMethod<[], [] | [Logo]>,
   'getStoriesByCategory' : ActorMethod<[StoryCategory], Array<Story>>,
   'getStory' : ActorMethod<[bigint], Story>,
+  'getThumbnail' : ActorMethod<[bigint], [] | [Logo]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'searchStories' : ActorMethod<[string], Array<Story>>,
   'toggleNightMode' : ActorMethod<[string, boolean], boolean>,
   'uploadLogo' : ActorMethod<[Uint8Array, string], undefined>,
+  'uploadThumbnail' : ActorMethod<[bigint, Uint8Array, string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
